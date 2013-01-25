@@ -37,12 +37,6 @@ namespace Hype.SL
 				OutputSignature = new List<Type>() { typeof(Number) }
 			};
 			interpreter.ScopeTreeRoot.AddToScope("/", divide);
-
-			//var assign = new CSharpFunction(delegate(List<Value> arguments)
-			//{
-			//	interpreter.ScopeTree.a
-			//}, Fixity.Infix_15);
-#error Figure out scopes
 		}
 
 		public static bool CheckArguments(List<Value> values, params Type[] types)

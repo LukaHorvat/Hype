@@ -10,10 +10,25 @@ namespace Hype
 	{
 		public List<ExpressionItem> Sequence;
 
+		private List<Value> RPN;
+		private bool isRPN;
+
 		public Expression(Token bracketToken)
 			: base(CheckToken(bracketToken))
 		{
 			Sequence = new List<ExpressionItem>();
+		}
+
+		public void Execute(Interpreter interpreter)
+		{
+			bool isObject;
+			for (int i = 0; i < Sequence.Count; ++i)
+			{
+				isObject = false;
+				if (Sequence[i].OriginalToken.Type == TokenType.Literal) isObject = true;
+#warning BOOKMARK
+				if (interpreter.ScopeTreeRoot.GetKind(Sequence[i].OriginalToken.Content) == ValueKind.Object) isObject = true;
+			}
 		}
 
 		private static Token CheckToken(Token token)

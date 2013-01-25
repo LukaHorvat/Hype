@@ -8,6 +8,8 @@ namespace Hype
 {
 	class Interpreter
 	{
+		public Expression RootExpression;
+
 		/// <summary>
 		/// The global node
 		/// </summary>
@@ -26,6 +28,7 @@ namespace Hype
 		{
 			scopeStack = new Stack<ScopeTreeNode>();
 			ScopeTreeRoot = new ScopeTreeNode();
+			RootExpression = expression;
 		}
 
 		public void LoadLibrary(Action<Interpreter> loadFunction)
