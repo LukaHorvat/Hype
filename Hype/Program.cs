@@ -13,7 +13,7 @@ namespace Hype
 		{
 			using (StreamReader reader = new StreamReader("samples/tokenization.hy"))
 			{
-				var parser = new Parser();
+                var parser = new Parser();
 				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);
 				output.DebugPrint();
 			}
