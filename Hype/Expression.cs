@@ -33,62 +33,6 @@ namespace Hype
 
 		public Value Execute(Interpreter interpreter)
 		{
-			ToRPN(interpreter);
-			solvingStack.Clear();
-			for (int i = 0; i < rpn.Count; ++i)
-			{
-				if (rpn[i].Item2.Item1 == ValueKind.Object)
-				{
-					if (rpn[i].Item1 is Expression)
-					{
-						//solvingStack.Push(new LazyExpression(rpn[i].Item1));
-						solvingStack.Push((rpn[i].Item1 as Expression).Execute(interpreter));
-					}
-					else if (rpn[i].Item1.OriginalToken.Type == TokenType.Literal)
-					{
-						solvingStack.Push(interpreter.ParseLiteral(rpn[i].Item1.OriginalToken.Content));
-					}
-					else
-					{
-						solvingStack.Push(interpreter.ScopeTreeRoot.Lookup(rpn[i].Item1.OriginalToken.Content));
-					}
-				}
-				else
-				{
-					Function func;
-					if (rpn[i].Item1 is Expression)
-					{
-						func = CheckSignature((rpn[i].Item1 as Expression).Execute(interpreter) as FunctionGroup, solvingStack);
-					}
-					else if (rpn[i].Item1 is WrappedValue)
-					{
-						func = CheckSignature((rpn[i].Item1 as WrappedValue).Val as Function, solvingStack);
-					}
-					else
-					{
-						func = CheckSignature(interpreter.ScopeTreeRoot.Lookup(rpn[i].Item1.OriginalToken.Content) as FunctionGroup, solvingStack);
-					}
-					if (func == null) throw new Exception("Function or function group doesn't match the current arguments.");
-					else
-					{
-						var args = solvingStack.Pop(func.Signature.InputSignature.Count);
-						args.Reverse();
-						var ret = func.Execute(args);
-						if (ret is Function)
-						{
-							rpn[i] = new Tuple<ExpressionItem, KindFixityPair>(new WrappedValue(ret), new KindFixityPair(ValueKind.Function, (ret as Function).Signature.Fixity));
-							i--;	//If the returned value is a fuction, we don't treat it as an object and pust it to the  stack,
-							//we instead let that function execute.
-						}
-						else
-						{
-							solvingStack.Push(ret);
-						}
-					}
-				}
-			}
-			if (solvingStack.Count > 1) throw new Exception("Expression evaluated to more than one value");
-			return solvingStack.Pop();		
 		}
 
 		private Function CheckSignature(Function func, Stack<Value> currentStack)
@@ -113,74 +57,6 @@ namespace Hype
 
 		private void ToRPN(Interpreter interpreter)
 		{
-			bool isObject;
-			int precedence = 0;
-			var str = interpreter.ScopeTreeRoot;
-			rpnInfo.Clear();
-			operatorStack.Clear();
-			infoStack.Clear();
-			rpn.Clear();
-
-			for (int i = 0; i < Sequence.Count; ++i)
-			{
-				isObject = false;
-				if (Sequence[i].OriginalToken.Type == TokenType.Literal)
-				{
-					isObject = true;
-					rpnInfo.Add(new Tuple<ValueKind, Fixity>(ValueKind.Object, Fixity.Prefix));
-				}
-				else if (Sequence[i] is Expression)
-				{
-					(Sequence[i] as Expression).ToRPN(interpreter);
-					var info = (Sequence[i] as Expression).rpnInfo.Last();
-					if (info.Item1 == ValueKind.Object)
-					{
-						isObject = true;
-					}
-					else
-					{
-						precedence = (int)info.Item2;
-					}
-					rpnInfo.Add(info);
-				}
-				else
-				{
-					var val = str.Lookup(Sequence[i].OriginalToken.Content);
-					if (val is FunctionGroup)
-					{
-						var fix = (val as FunctionGroup).Fixity;
-						precedence = (int)fix;
-						rpnInfo.Add(new Tuple<ValueKind, Fixity>(ValueKind.Function, fix));
-					}
-					else
-					{
-						isObject = true;
-						rpnInfo.Add(new Tuple<ValueKind, Fixity>(ValueKind.Object, Fixity.Prefix));
-					}
-				}
-				if (isObject) rpn.Add(new Tuple<ExpressionItem, KindFixityPair>(Sequence[i], rpnInfo.Last()));
-				else
-				{
-					if (operatorStack.Count == 0 || (int)infoStack.Peek() > precedence)
-					{
-						operatorStack.Push(Sequence[i]);
-						infoStack.Push((Fixity)precedence);
-					}
-					else
-					{
-						while (infoStack.Count > 0 && (int)infoStack.Peek() <= precedence)
-						{
-							rpn.Add(new Tuple<ExpressionItem, KindFixityPair>(operatorStack.Pop(), new KindFixityPair(ValueKind.Function, infoStack.Pop())));
-						}
-						operatorStack.Push(Sequence[i]);
-						infoStack.Push((Fixity)precedence);
-					}
-				}
-			}
-			while (operatorStack.Count > 0)
-			{
-				rpn.Add(new Tuple<ExpressionItem, KindFixityPair>(operatorStack.Pop(), new KindFixityPair(ValueKind.Function, infoStack.Pop())));
-			}
 		}
 
 		private static Token CheckToken(Token token)
