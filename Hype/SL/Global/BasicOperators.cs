@@ -17,57 +17,29 @@ namespace Hype.SL.Global
 
 		public Value Add(List<Value> arguments)
 		{
-			if (StandardLibrary.CheckArguments(arguments, typeof(Number), typeof(Number)))
-			{
-				return new Number((arguments[0] as Number).Num + (arguments[0] as Number).Num);
-			}
-			else
-			{
-				throw new Exception("Only numbers can be added together");
-			}
+			return new Number((arguments[0] as Number).Num + (arguments[1] as Number).Num);
 		}
 
 		public Value Subtract(List<Value> arguments)
 		{
-			if (StandardLibrary.CheckArguments(arguments, typeof(Number), typeof(Number)))
-			{
-				return new Number((arguments[0] as Number).Num - (arguments[0] as Number).Num);
-			}
-			else
-			{
-				throw new Exception("Only numbers can be subtracted");
-			}
+			return new Number((arguments[0] as Number).Num - (arguments[1] as Number).Num);
 		}
 
 		public Value Multiply(List<Value> arguments)
 		{
-			if (StandardLibrary.CheckArguments(arguments, typeof(Number), typeof(Number)))
-			{
-				return new Number((arguments[0] as Number).Num * (arguments[0] as Number).Num);
-			}
-			else
-			{
-				throw new Exception("Only numbers can be multiplied");
-			}
+			return new Number((arguments[0] as Number).Num * (arguments[1] as Number).Num);
 		}
 
 		public Value Divide(List<Value> arguments)
 		{
-			if (StandardLibrary.CheckArguments(arguments, typeof(Number), typeof(Number)))
-			{
-				return new Number((arguments[0] as Number).Num / (arguments[0] as Number).Num);
-			}
-			else
-			{
-				throw new Exception("Only numbers can be divided");
-			}
+			return new Number((arguments[0] as Number).Num / (arguments[1] as Number).Num);
 		}
 
 		public Value Assign(List<Value> arguments)
 		{
-			if (arguments[0].Name != "")
+			if (arguments[0].Var.Name != "")
 			{
-				Interpreter.CurrentScopeNode.AddToScope(arguments[0].Name, arguments[1]);
+				Interpreter.CurrentScopeNode.AddToScope(arguments[0].Var.Name, arguments[1]);
 			}
 			else
 			{

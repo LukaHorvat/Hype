@@ -8,11 +8,18 @@ namespace Hype
 {
 	class Value
 	{
-		public string Name;
+		/// <summary>
+		/// A changable string that represents the name of the last variable accessed that referenced this Value
+		/// </summary>
+		public Variable Var = new Variable("");
 
-		public virtual ValueKind GetKind()
+		public ValueType Type { get; protected set; }
+		public ValueKind Kind { get; protected set; }
+
+		public Value(ValueType type)
 		{
-			return ValueKind.Object;
+			Type = type;
+			Kind = ValueKind.Object;
 		}
 	}
 }

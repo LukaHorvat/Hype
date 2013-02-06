@@ -7,3 +7,6 @@ C:\Users\Luka\documents\visual studio 2012\Projects\Hype\Hype\obj\Debug\Hype.pdb
 C:\Documents and Settings\Aleksandar Horvat\My Documents\GitHub\Hype\Hype\bin\Debug\Hype.exe.config
 C:\Documents and Settings\Aleksandar Horvat\My Documents\GitHub\Hype\Hype\obj\Debug\Hype.exe
 C:\Documents and Settings\Aleksandar Horvat\My Documents\GitHub\Hype\Hype\obj\Debug\Hype.pdb
+C:\Documents and Settings\Aleksandar Horvat\My Documents\GitHub\Hype\Hype\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\Aleksandar Horvat\My Documents\GitHub\Hype\Hype\bin\Debug\Hype.exe
+C:\Documents and Settings\Aleksandar Horvat\My Documents\GitHub\Hype\Hype\bin\Debug\Hype.pdb

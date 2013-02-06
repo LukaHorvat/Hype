@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hype.SL.Global;
 
 namespace Hype
 {
@@ -38,7 +39,8 @@ namespace Hype
 
 		public void Run()
 		{
-
+			EnterScope(ScopeTreeRoot);
+			RootExpression.Execute(this);
 		}
 
 		public void EnterScope(ScopeTreeNode node)
@@ -49,6 +51,11 @@ namespace Hype
 		public void ExitScope()
 		{
 			scopeStack.Pop();
+		}
+
+		public Value ParseLiteral(string literal)
+		{
+			return new Number(int.Parse(literal));
 		}
 	}
 }

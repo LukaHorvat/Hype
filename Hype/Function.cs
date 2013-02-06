@@ -64,45 +64,27 @@ namespace Hype
 
 	class Function : Value
 	{
-		public Fixity Fixity;
-
-		public readonly int NumArguments;
-
-		public List<Type> InputSignature;
-		public List<Type> OutputSignature;
+		public FunctionType Signature;
 
 		public Function(Fixity fixity)
+			:base(ValueType.GetType("Function"))
 		{
 			if (fixity == 0) throw new Exception("This constructor can only be used for infix functions");
-			Fixity = fixity;
-			NumArguments = 2;
+			Signature = new FunctionType(fixity);
+			Kind = ValueKind.Function;
 		}
 
 		public Function(Fixity fixity, int numArguments)
+			:base(ValueType.GetType("Function"))
 		{
 			if (fixity > 0) throw new Exception("This constructor can only be used for prefix functions");
-			Fixity = fixity;
-			NumArguments = numArguments;
-		}
-
-		private void InitializeSignature()
-		{
-			InputSignature = new List<Type>();
-			for (int i = 0; i < NumArguments; ++i)
-			{
-				InputSignature.Add(typeof(Uncertain));
-			}
-			OutputSignature.Add(typeof(Uncertain));
+			Signature = new FunctionType(fixity, numArguments);
+			Kind = ValueKind.Function;
 		}
 
 		public virtual Value Execute(List<Value> arguments)
 		{
-			return Void.Void;
-		}
-
-		public override ValueKind GetKind()
-		{
-			return ValueKind.Function;
+			return Void.Instance;
 		}
 	}
 }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hype.SL;
 
 namespace Hype
 {
@@ -15,6 +16,11 @@ namespace Hype
 			{
                 var parser = new Parser();
 				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);
+
+				var interpreter = new Interpreter(output);
+				interpreter.LoadLibrary(StandardLibrary.Load);
+//				interpreter.Run();
+
 				output.DebugPrint();
 			}
 		}

@@ -73,7 +73,7 @@ namespace Hype
 				{
 					var subExpression = BuildExpressionTree(tokens, currentIndex);
 					res.Sequence.Add(subExpression);
-					currentIndex += subExpression.Sequence.Count + 1; //We skip the content of the inner expression and we skip it's closing bracket.
+					currentIndex += subExpression.GetNumTokens() + 1; //We skip the content of the inner expression and we skip it's closing bracket.
 				}
 				else res.Sequence.Add(new ExpressionItem(tokens[currentIndex]));
 

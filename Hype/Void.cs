@@ -8,6 +8,9 @@ namespace Hype
 {
 	class Void : Value
 	{
-		public static Void Void = new Void();
+		public static Void Instance = new Void();
+
+		public Void()
+			: base(ValueType.GetType("Void")) { }
 	}
 }

@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hype.SL.Global
+namespace Hype
 {
 	class BlankIdentifier : Value
 	{
 		public BlankIdentifier(string name)
+			:base(ValueType.GetType("BlankIdentifier"))
 		{
-			Name = name;
+			Var.Name = name;
 		}
 	}
 }
