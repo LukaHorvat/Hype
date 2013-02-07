@@ -12,51 +12,102 @@ namespace Hype
 	{
 		public List<ExpressionItem> Sequence;
 
-		private List<Tuple<ExpressionItem, KindFixityPair>> rpn;
-		private Stack<ExpressionItem> operatorStack;
-
-		private List<KindFixityPair> rpnInfo;
-		private Stack<Fixity> infoStack;
-
-		private Stack<Value> solvingStack;
+		private List<List<LinkedListNode<Value>>> functionList;
+		private Stack<LinkedListNode<Value>> functionStack;
+		private LinkedList<Value> currentExecution;
 
 		public Expression(Token bracketToken)
 			: base(CheckToken(bracketToken))
 		{
 			Sequence = new List<ExpressionItem>();
-			rpnInfo = new List<KindFixityPair>();
-			operatorStack = new Stack<ExpressionItem>();
-			infoStack = new Stack<Fixity>();
-			rpn = new List<Tuple<ExpressionItem, KindFixityPair>>();
-			solvingStack = new Stack<Value>();
+
 		}
 
 		public Value Execute(Interpreter interpreter)
 		{
-		}
+			int numFixities = Enum.GetNames(typeof(Fixity)).Length;
+			functionList = new List<List<LinkedListNode<Value>>>(numFixities);
+			for (int i = 0; i < numFixities; ++i) functionList.Add(new List<LinkedListNode<Value>>());
 
-		private Function CheckSignature(Function func, Stack<Value> currentStack)
-		{
-			if (currentStack.Count < func.Signature.InputSignature.Count) return null;
-			var args = currentStack.Take(func.Signature.InputSignature.Count).Reverse().ToList();
-			return args.Select((x, i) => new []{x.Type, ValueType.GetType("Uncertain")}.Contains(func.Signature.InputSignature[i])).All(x => x) ? func : null;
-		}
+			functionStack = new Stack<LinkedListNode<Value>>();
+			currentExecution = new LinkedList<Value>();
+			Value val;
 
-		private Function CheckSignature(FunctionGroup group, Stack<Value> currentStack)
-		{
-			var arguments = new List<Value>();
-
-			Function match = null;
-			foreach (var func in group.Functions) //Find a fuction that has a matching signature
+			for (int i = 0; i < Sequence.Count; ++i)
 			{
-				match = CheckSignature(func, currentStack);
-				if (match != null) break;
+				val = null;
+				var tok = Sequence[i].OriginalToken;
+				switch (tok.Type)
+				{
+					case TokenType.Literal:
+						currentExecution.AddLast(interpreter.ParseLiteral(tok.Content));
+						break;
+					case TokenType.Identifier:
+						val = interpreter.CurrentScopeNode.Lookup(tok.Content);
+						break;
+					case TokenType.Group:
+						val = (Sequence[i] as Expression).Execute(interpreter);
+						break;
+				}
+				if (val != null)
+				{
+					currentExecution.AddLast(val);
+					if (val.Type == ValueType.GetType("FunctionGroup"))
+					{
+						var fg = (FunctionGroup)val;
+						functionList[(int)fg.Fixity].Add(currentExecution.Last);
+					}
+				}
 			}
-			return match;
-		}
 
-		private void ToRPN(Interpreter interpreter)
-		{
+			for (int j = functionList.Count - 1; j >= 0; --j) for (int k = functionList[j].Count - 1; k >= 0; --k) functionStack.Push(functionList[j][k]);
+			while (functionStack.Count > 0)
+			{
+				var funcNode = functionStack.Pop();
+				var func = funcNode.Value as FunctionGroup;
+
+				Value res = null;
+				Side side;
+
+				Function noArgs;
+				if ((noArgs = func.MatchesNoArguments) != null)
+				{
+					res = noArgs.Execute(new List<Value>());
+					side = Side.NoArgument;
+				}
+
+				if (func.Fixity != Fixity.Prefix && funcNode.Previous != null)
+				{
+					side = Side.Left;
+					res = func.Apply(funcNode.Previous.Value, Side.Left);
+				}
+				else
+				{
+					if (funcNode.Next == null)
+					{
+						side = Side.NoArgument;
+						res = func;
+					}
+					else
+					{
+						side = Side.Right;
+						res = func.Apply(funcNode.Next.Value, Side.Right);
+					}
+				}
+				if (side == Side.Left)
+				{
+					currentExecution.Remove(funcNode.Previous);
+				}
+				else if (side == Side.Right)
+				{
+					currentExecution.Remove(funcNode.Next);
+				}
+				var node = currentExecution.AddAfter(funcNode, res);
+				currentExecution.Remove(funcNode);
+				if (res != func && res.Type == ValueType.GetType("FunctionGroup")) functionStack.Push(node);
+			}
+
+			return currentExecution.First.Value;
 		}
 
 		private static Token CheckToken(Token token)
@@ -95,7 +146,7 @@ namespace Hype
 
 		public int GetNumTokens()
 		{
-			return Sequence.Aggregate<ExpressionItem, int>(0, (a, i) => a + (i is Expression ? (i as Expression).GetNumTokens() : 1));
+			return Sequence.Aggregate<ExpressionItem, int>(0, (a, i) => a + (i is Expression ? (i as Expression).GetNumTokens() : 1)) + 2;
 		}
 	}
 }

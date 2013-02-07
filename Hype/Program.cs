@@ -19,7 +19,7 @@ namespace Hype
 
 				var interpreter = new Interpreter(output);
 				interpreter.LoadLibrary(StandardLibrary.Load);
-//				interpreter.Run();
+				interpreter.Run();
 
 				output.DebugPrint();
 			}
