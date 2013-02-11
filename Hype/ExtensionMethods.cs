@@ -23,5 +23,12 @@ namespace Hype
 			}
 			return list;
 		}
+
+		public static List<T> Clone<T>(this List<T> self)
+		{
+			var ret = new T[self.Count];
+			self.CopyTo(ret);
+			return ret.ToList();
+		}
 	}
 }

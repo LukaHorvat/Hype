@@ -79,7 +79,14 @@ namespace Hype
 				if (func.Fixity != Fixity.Prefix && funcNode.Previous != null)
 				{
 					side = Side.Left;
-					res = func.Apply(funcNode.Previous.Value, Side.Left);
+					try
+					{
+						res = func.Apply(funcNode.Previous.Value, Side.Left);
+					}
+					catch (Exception)
+					{
+						continue;
+					}
 				}
 				else
 				{
@@ -91,7 +98,14 @@ namespace Hype
 					else
 					{
 						side = Side.Right;
-						res = func.Apply(funcNode.Next.Value, Side.Right);
+						try
+						{
+							res = func.Apply(funcNode.Next.Value, Side.Right);
+						}
+						catch (Exception)
+						{
+							continue;
+						}
 					}
 				}
 				if (side == Side.Left)

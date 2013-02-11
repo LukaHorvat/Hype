@@ -62,7 +62,7 @@ namespace Hype
 		Infix_17 = 17
 	}
 
-	class Function : Value
+	class Function : Value, IInvokable
 	{
 		public FunctionType Signature;
 
@@ -85,6 +85,11 @@ namespace Hype
 		public virtual Value Execute(List<Value> arguments)
 		{
 			return Void.Instance;
+		}
+
+		public Value Apply(Value val, Side side)
+		{
+			new PartialApplication(
 		}
 	}
 }

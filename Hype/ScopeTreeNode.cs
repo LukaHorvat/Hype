@@ -71,7 +71,6 @@ namespace Hype
             {
 				if (kind == ValueKind.Function)
 				{
-					Kinds[key] = ValueKind.Function;
 					if (val is Function)
 					{
 						Values[key] = new FunctionGroup(val as Function);
@@ -82,6 +81,7 @@ namespace Hype
 				{
 					Values[key] = val;
 				}
+				Kinds[key] = kind;
             }
             else if (kind == ValueKind.Function)
             {

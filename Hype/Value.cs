@@ -13,8 +13,8 @@ namespace Hype
 		/// </summary>
 		public Variable Var = new Variable("");
 
-		public ValueType Type { get; protected set; }
-		public ValueKind Kind { get; protected set; }
+		public ValueType Type { get; set; }
+		public ValueKind Kind { get; set; }
 
 		public Value(ValueType type)
 		{

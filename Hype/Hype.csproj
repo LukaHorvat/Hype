@@ -43,12 +43,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CSharpFunction.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="Expression.cs" />
     <Compile Include="ExpressionItem.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Function.cs" />
     <Compile Include="FunctionGroup.cs" />
+    <Compile Include="FunctionObject.cs" />
     <Compile Include="FunctionType.cs" />
+    <Compile Include="IInvokable.cs" />
     <Compile Include="Interpreter.cs" />
     <Compile Include="LazyExpression.cs" />
     <Compile Include="MultipleValues.cs" />
@@ -61,6 +64,7 @@
     <Compile Include="BlankIdentifier.cs" />
     <Compile Include="SL\Global\Number.cs" />
     <Compile Include="SL\StandardLibrary.cs" />
+    <Compile Include="Tests.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Value.cs" />
     <Compile Include="ValueType.cs" />

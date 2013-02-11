@@ -10,7 +10,7 @@ namespace Hype
 		Left, Right, NoArgument
 	}
 
-	class FunctionGroup : Value
+	class FunctionGroup : Value, IInvokable
 	{
 		public List<Function> Functions;
 		public Fixity Fixity { get; protected set; }
@@ -57,7 +57,7 @@ namespace Hype
 
 		public virtual Value Apply(Value argument, Side side)
 		{
-			var partial = new PartialApplication(new List<Value>(), Functions, this);
+			var partial = new PartialApplication(new List<Value>(), Functions.Clone(), this);
 			return partial.Apply(argument, side);
 		}
 
@@ -76,6 +76,32 @@ namespace Hype
 			get
 			{
 				return Functions.FirstOrDefault(f => f.Signature.InputSignature.Count == 0);
+			}
+		}
+
+		public override string ToString()
+		{
+			return "FuctionGroup: " + Var.Name;
+		}
+
+		public Value Execute(List<Value> arguments)
+		{
+			if (arguments.Count == 0)
+			{
+				var noArgs = MatchesNoArguments;
+				if (noArgs != null) return noArgs.Execute(arguments);
+				else throw new NoMatchingSignature(SignatureMismatchType.Group);
+			}
+			else
+			{
+				foreach (var function in Functions)
+				{
+					if (function.Signature.MatchesArguments(arguments) == MatchType.FullMatch)
+					{
+						return function.Execute(arguments);
+					}
+				}
+				throw new NoMatchingSignature(SignatureMismatchType.Group);
 			}
 		}
 	}

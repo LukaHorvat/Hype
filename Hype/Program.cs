@@ -12,7 +12,9 @@ namespace Hype
 	{
 		static void Main(string[] args)
 		{
-			using (StreamReader reader = new StreamReader("samples/tokenization.hy"))
+			Tests.Run();
+
+			using (StreamReader reader = new StreamReader("samples/curry.hy"))
 			{
                 var parser = new Parser();
 				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);
@@ -20,8 +22,6 @@ namespace Hype
 				var interpreter = new Interpreter(output);
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
-
-				output.DebugPrint();
 			}
 		}
 	}
