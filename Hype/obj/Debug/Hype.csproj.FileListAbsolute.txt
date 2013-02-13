@@ -10,3 +10,9 @@ C:\Documents and Settings\Aleksandar Horvat\My Documents\GitHub\Hype\Hype\obj\De
 C:\Documents and Settings\Aleksandar Horvat\My Documents\GitHub\Hype\Hype\obj\Debug\ResolveAssemblyReference.cache
 C:\Documents and Settings\Aleksandar Horvat\My Documents\GitHub\Hype\Hype\bin\Debug\Hype.exe
 C:\Documents and Settings\Aleksandar Horvat\My Documents\GitHub\Hype\Hype\bin\Debug\Hype.pdb
+C:\Users\Luka\Documents\GitHub\Hype\Hype\bin\Debug\Hype.exe.config
+C:\Users\Luka\Documents\GitHub\Hype\Hype\obj\Debug\Hype.exe
+C:\Users\Luka\Documents\GitHub\Hype\Hype\obj\Debug\Hype.pdb
+C:\Users\Luka\Documents\GitHub\Hype\Hype\obj\Debug\Hype.csprojResolveAssemblyReference.cache
+C:\Users\Luka\Documents\GitHub\Hype\Hype\bin\Debug\Hype.exe
+C:\Users\Luka\Documents\GitHub\Hype\Hype\bin\Debug\Hype.pdb

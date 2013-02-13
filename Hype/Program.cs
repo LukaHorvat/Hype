@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hype.SL;
+using System.Runtime.CompilerServices;
+
+[assembly:InternalsVisibleTo("HypeTests")]
 
 namespace Hype
 {
@@ -12,8 +15,6 @@ namespace Hype
 	{
 		static void Main(string[] args)
 		{
-			Tests.Run();
-
 			using (StreamReader reader = new StreamReader("samples/curry.hy"))
 			{
                 var parser = new Parser();

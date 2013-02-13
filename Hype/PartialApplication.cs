@@ -12,16 +12,16 @@ namespace Hype
 		FullMatch
 	}
 
-	class PartialApplication : Value, IInvokable
+	class PartialApplication : Value, ICurryable
 	{
 		public List<Value> Arguments;
-		public List<Function> PotentialMatches;
-		public Fixity Fixity;
+		public List<IInvokable> PotentialMatches;
+		public Fixity Fixity { get; set; }
 
 		private string funcName = "";
 
-		public PartialApplication(List<Value> args, List<Function> matches, FunctionGroup group)
-			:base(ValueType.GetType("FunctionGroup"))
+		public PartialApplication(List<Value> args, List<IInvokable> matches, FunctionGroup group)
+			: base(ValueType.GetType("FunctionGroup"))
 		{
 			Arguments = args;
 			PotentialMatches = matches;
@@ -29,25 +29,25 @@ namespace Hype
 			funcName = group.Var.Name;
 		}
 
-		public PartialApplication(List<Value> args, List<Function> matches, Function func)
+		public PartialApplication(List<Value> args, List<IInvokable> matches, Function func)
 			: base(ValueType.GetType("FunctionGroup"))
 		{
 			Arguments = args;
 			PotentialMatches = matches;
-			Fixity = func.Signature.Fixity;
+			Fixity = Hype.Fixity.Prefix;
 			funcName = func.Var.Name;
 		}
 
-		public PartialApplication(List<Value> args, List<Function> matches, Fixity fixity, string name)
+		public PartialApplication(List<Value> args, List<IInvokable> matches, Fixity fixity, string name)
 			: base(ValueType.GetType("FunctionGroup"))
 		{
 			Arguments = args;
 			PotentialMatches = matches;
-			Fixity = fixity;
+			Fixity = Hype.Fixity.Prefix;
 			funcName = name;
 		}
 
-		public override Value Apply(Value argument, Side side)
+		public Value Apply(Value argument, Side side)
 		{
 			var arguments = Arguments.Clone();
 			var potentialMatches = PotentialMatches.Clone();
@@ -57,7 +57,7 @@ namespace Hype
 				arguments.Add(null);
 				arguments.Add(argument);
 			}
-			else if (Fixity != Hype.Fixity.Prefix && arguments.Count == 2 && arguments[0] == null)
+			else if (arguments.Count == 2 && arguments[0] == null)
 			{
 				arguments[0] = argument;
 			}
@@ -86,10 +86,12 @@ namespace Hype
 			return "PartialApplication: " + funcName;
 		}
 
-
-		public Value Execute(List<Value> arguments)
+		public IInvokable MatchesNoArguments
 		{
-			throw new NotImplementedException();
+			get
+			{
+				return PotentialMatches.FirstOrDefault(f => f.Signature.InputSignature.Count == 0);
+			}
 		}
 	}
 }

@@ -54,7 +54,7 @@ namespace Hype
 					currentExecution.AddLast(val);
 					if (val.Type == ValueType.GetType("FunctionGroup"))
 					{
-						var fg = (FunctionGroup)val;
+						var fg = (IFunctionGroup)val;
 						functionList[(int)fg.Fixity].Add(currentExecution.Last);
 					}
 				}
@@ -64,16 +64,18 @@ namespace Hype
 			while (functionStack.Count > 0)
 			{
 				var funcNode = functionStack.Pop();
-				var func = funcNode.Value as FunctionGroup;
+				var func = funcNode.Value as ICurryable;
 
 				Value res = null;
 				Side side;
 
-				Function noArgs;
-				if ((noArgs = func.MatchesNoArguments) != null)
 				{
-					res = noArgs.Execute(new List<Value>());
-					side = Side.NoArgument;
+					IInvokable noArgs;
+					if ((noArgs = func.MatchesNoArguments) != null)
+					{
+						res = noArgs.Execute(new List<Value>());
+						side = Side.NoArgument;
+					}
 				}
 
 				if (func.Fixity != Fixity.Prefix && funcNode.Previous != null)
@@ -93,7 +95,7 @@ namespace Hype
 					if (funcNode.Next == null)
 					{
 						side = Side.NoArgument;
-						res = func;
+						res = (Value)func;
 					}
 					else
 					{

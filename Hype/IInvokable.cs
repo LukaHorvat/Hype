@@ -5,10 +5,13 @@ using System.Text;
 
 namespace Hype
 {
-	interface IInvokable
+	interface IInvokable : ICurryable
 	{
-		public Value Apply(Value val, Side side);
-		public Value Execute(List<Value> arguments);
-		public Fixity Fixity;
+		Value Execute(List<Value> arguments);
+
+		/// <summary>
+		/// Complete, invokable functions need to also have their entire signatures visible.
+		/// </summary>
+		FunctionType Signature { get; }
 	}
 }

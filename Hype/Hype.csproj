@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,6 +52,8 @@
     <Compile Include="FunctionGroup.cs" />
     <Compile Include="FunctionObject.cs" />
     <Compile Include="FunctionType.cs" />
+    <Compile Include="ICurryable.cs" />
+    <Compile Include="IFunctionGroup.cs" />
     <Compile Include="IInvokable.cs" />
     <Compile Include="Interpreter.cs" />
     <Compile Include="LazyExpression.cs" />
@@ -64,7 +67,6 @@
     <Compile Include="BlankIdentifier.cs" />
     <Compile Include="SL\Global\Number.cs" />
     <Compile Include="SL\StandardLibrary.cs" />
-    <Compile Include="Tests.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Value.cs" />
     <Compile Include="ValueType.cs" />

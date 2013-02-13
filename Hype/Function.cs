@@ -64,10 +64,11 @@ namespace Hype
 
 	class Function : Value, IInvokable
 	{
-		public FunctionType Signature;
+		public FunctionType Signature { get; set; }
+		public Fixity Fixity { get { return Signature.Fixity; } }
 
 		public Function(Fixity fixity)
-			:base(ValueType.GetType("Function"))
+			: base(ValueType.GetType("Function"))
 		{
 			if (fixity == 0) throw new Exception("This constructor can only be used for infix functions");
 			Signature = new FunctionType(fixity);
@@ -75,7 +76,7 @@ namespace Hype
 		}
 
 		public Function(Fixity fixity, int numArguments)
-			:base(ValueType.GetType("Function"))
+			: base(ValueType.GetType("Function"))
 		{
 			if (fixity > 0) throw new Exception("This constructor can only be used for prefix functions");
 			Signature = new FunctionType(fixity, numArguments);
@@ -87,9 +88,20 @@ namespace Hype
 			return Void.Instance;
 		}
 
+		//public Value Apply(Value val, Side side)
+		//{
+		//	new PartialApplication(
+		//}
+
 		public Value Apply(Value val, Side side)
 		{
-			new PartialApplication(
+			throw new NotImplementedException();
+		}
+
+
+		public IInvokable MatchesNoArguments
+		{
+			get { return Signature.InputSignature.Count == 0 ? this : null; }
 		}
 	}
 }

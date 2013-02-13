@@ -12,13 +12,14 @@ namespace Hype
 
 	class FunctionGroup : Value, IInvokable
 	{
-		public List<Function> Functions;
+		public List<IInvokable> Functions;
 		public Fixity Fixity { get; protected set; }
+		public FunctionType Signature { get { return Functions.Count > 0 ? Functions[0].Signature : null; } }
 
 		public FunctionGroup(Function func)
 			: base(ValueType.GetType("FunctionGroup"))
 		{
-			Functions = new List<Function>();
+			Functions = new List<IInvokable>();
 			AddFunction(func);
 			Kind = ValueKind.Function;
 		}
@@ -26,12 +27,12 @@ namespace Hype
 		public FunctionGroup(Fixity fixity)
 			: base(ValueType.GetType("FunctionGroup"))
 		{
-			Functions = new List<Function>();
+			Functions = new List<IInvokable>();
 			Kind = ValueKind.Function;
 			Fixity = fixity;
 		}
 
-		public void AddFunction(Function func)
+		public void AddFunction(IInvokable func)
 		{
 			if (Functions.Count == 0)
 			{
@@ -41,7 +42,7 @@ namespace Hype
 			else throw new Exception("Only fuction with the same fixity can be gouped together");
 		}
 
-		public void AddWithOverride(Function func)
+		public void AddWithOverride(IInvokable func)
 		{
 			if (Functions.Count == 0)
 			{
@@ -71,7 +72,7 @@ namespace Hype
 			foreach (var func in group.Functions) AddFunction(func);
 		}
 
-		public Function MatchesNoArguments
+		public IInvokable MatchesNoArguments
 		{
 			get
 			{
