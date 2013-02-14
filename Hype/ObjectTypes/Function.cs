@@ -62,10 +62,11 @@ namespace Hype
 		Infix_17 = 17
 	}
 
-	class Function : Value, IInvokable
+	class Function : Functional, IInvokable
 	{
 		public FunctionType Signature { get; set; }
-		public Fixity Fixity { get { return Signature.Fixity; } }
+
+		public override Fixity Fixity { get { return Signature.Fixity; } set { Signature.Fixity = value; } }
 
 		public Function(Fixity fixity)
 			: base(ValueType.GetType("Function"))
@@ -88,20 +89,21 @@ namespace Hype
 			return Void.Instance;
 		}
 
-		//public Value Apply(Value val, Side side)
-		//{
-		//	new PartialApplication(
-		//}
-
 		public Value Apply(Value val, Side side)
 		{
-			throw new NotImplementedException();
+			var partial = new PartialApplication(new List<Value>(), this);
+			return partial.Apply(val, side);
+		}
+
+		public override IInvokable MatchesNoArguments
+		{
+			get { return Signature.InputSignature.Count == 0 ? this : null; }
 		}
 
 
-		public IInvokable MatchesNoArguments
+		public ICurryable PrefixApplication
 		{
-			get { return Signature.InputSignature.Count == 0 ? this : null; }
+			get { return new PartialApplication(new List<Value>(), new List<IInvokable>() { this }, Hype.Fixity.Prefix, Var.Name); }
 		}
 	}
 }

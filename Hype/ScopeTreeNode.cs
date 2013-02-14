@@ -75,6 +75,11 @@ namespace Hype
 					{
 						Values[key] = new FunctionGroup(val as Function);
 					}
+					if (val is PartialApplication)
+					{
+#error FIX
+						Values[key] = new FunctionGroup(val as Function);
+					}
 					if (val is FunctionGroup) Values[key] = val;
 				}
 				else

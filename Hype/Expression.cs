@@ -60,6 +60,8 @@ namespace Hype
 				}
 			}
 
+			var exceptions = new Queue<FunctionCallException>();
+
 			for (int j = functionList.Count - 1; j >= 0; --j) for (int k = functionList[j].Count - 1; k >= 0; --k) functionStack.Push(functionList[j][k]);
 			while (functionStack.Count > 0)
 			{
@@ -69,15 +71,6 @@ namespace Hype
 				Value res = null;
 				Side side;
 
-				{
-					IInvokable noArgs;
-					if ((noArgs = func.MatchesNoArguments) != null)
-					{
-						res = noArgs.Execute(new List<Value>());
-						side = Side.NoArgument;
-					}
-				}
-
 				if (func.Fixity != Fixity.Prefix && funcNode.Previous != null)
 				{
 					side = Side.Left;
@@ -85,8 +78,9 @@ namespace Hype
 					{
 						res = func.Apply(funcNode.Previous.Value, Side.Left);
 					}
-					catch (Exception)
+					catch (FunctionCallException e)
 					{
+						exceptions.Enqueue(e);
 						continue;
 					}
 				}
@@ -104,8 +98,9 @@ namespace Hype
 						{
 							res = func.Apply(funcNode.Next.Value, Side.Right);
 						}
-						catch (Exception)
+						catch (FunctionCallException e)
 						{
+							exceptions.Enqueue(e);
 							continue;
 						}
 					}
@@ -120,9 +115,16 @@ namespace Hype
 				}
 				var node = currentExecution.AddAfter(funcNode, res);
 				currentExecution.Remove(funcNode);
-				if (res != func && res.Type == ValueType.GetType("FunctionGroup")) functionStack.Push(node);
+				if (res != func && res.Type == ValueType.GetType("FunctionGroup") && currentExecution.Count > 1) functionStack.Push(node);
 			}
 
+			if (currentExecution.Count > 1)
+			{
+				if (exceptions.Count > 0) throw exceptions.Dequeue();
+				else throw new MultipleValuesLeft();
+			}
+			if (currentExecution.First.Value.Type == ValueType.GetType("FunctionGroup")
+				&& ((IFunctionGroup)currentExecution.First.Value).Fixity != Fixity.Prefix) return (Value)(currentExecution.First.Value as ICurryable).PrefixApplication;
 			return currentExecution.First.Value;
 		}
 

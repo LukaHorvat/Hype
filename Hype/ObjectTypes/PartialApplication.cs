@@ -12,39 +12,28 @@ namespace Hype
 		FullMatch
 	}
 
-	class PartialApplication : Value, ICurryable
+	class PartialApplication : Functional, ICurryable
 	{
 		public List<Value> Arguments;
 		public List<IInvokable> PotentialMatches;
-		public Fixity Fixity { get; set; }
+		public override Fixity Fixity { get; set; }
 
 		private string funcName = "";
 
 		public PartialApplication(List<Value> args, List<IInvokable> matches, FunctionGroup group)
-			: base(ValueType.GetType("FunctionGroup"))
-		{
-			Arguments = args;
-			PotentialMatches = matches;
-			Fixity = group.Fixity;
-			funcName = group.Var.Name;
-		}
+			: this(args, matches, group.Fixity, group.Var.Name) { }
 
-		public PartialApplication(List<Value> args, List<IInvokable> matches, Function func)
-			: base(ValueType.GetType("FunctionGroup"))
-		{
-			Arguments = args;
-			PotentialMatches = matches;
-			Fixity = Hype.Fixity.Prefix;
-			funcName = func.Var.Name;
-		}
+		public PartialApplication(List<Value> args, Function func)
+			: this(args, new List<IInvokable>() { func }, Fixity.Prefix, func.Var.Name) { }
 
 		public PartialApplication(List<Value> args, List<IInvokable> matches, Fixity fixity, string name)
 			: base(ValueType.GetType("FunctionGroup"))
 		{
 			Arguments = args;
 			PotentialMatches = matches;
-			Fixity = Hype.Fixity.Prefix;
+			Fixity = fixity;
 			funcName = name;
+			Kind = ValueKind.Function;
 		}
 
 		public Value Apply(Value argument, Side side)
@@ -52,7 +41,12 @@ namespace Hype
 			var arguments = Arguments.Clone();
 			var potentialMatches = PotentialMatches.Clone();
 
-			if (Fixity != Hype.Fixity.Prefix && arguments.Count == 0 && side == Side.Right)
+			if (argument is Functional && ((IFunctionGroup)argument).Fixity != Fixity.Prefix)
+			{
+				throw new NonPrefixFunctionAsArgument();
+			}
+
+			if (Fixity != Fixity.Prefix && arguments.Count == 0 && side == Side.Right)
 			{
 				arguments.Add(null);
 				arguments.Add(argument);
@@ -78,7 +72,7 @@ namespace Hype
 			}
 			if (potentialMatches.Count == 0) throw new Exception("No fuctions match the signature.");
 
-			return new PartialApplication(arguments, potentialMatches.Clone(), Fixity, funcName);
+			return new PartialApplication(arguments, potentialMatches.Clone(), Fixity.Prefix, funcName);
 		}
 
 		public override string ToString()
@@ -86,11 +80,20 @@ namespace Hype
 			return "PartialApplication: " + funcName;
 		}
 
-		public IInvokable MatchesNoArguments
+		public override IInvokable MatchesNoArguments
 		{
 			get
 			{
 				return PotentialMatches.FirstOrDefault(f => f.Signature.InputSignature.Count == 0);
+			}
+		}
+
+
+		public ICurryable PrefixApplication
+		{
+			get
+			{
+				return new PartialApplication(Arguments, PotentialMatches.Clone(), Fixity.Prefix, funcName);
 			}
 		}
 	}

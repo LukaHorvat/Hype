@@ -24,6 +24,12 @@ namespace Hype
 			return types.ContainsKey(name) ? types[name] : types[name] = new ValueType(name);
 		}
 
+		static ValueType()
+		{
+			var func = GetType("Functional");
+			new[] { "FunctionGroup", "Function" }.ToList().ForEach(s => func.AddSubtype(ValueType.GetType(s)));
+		}
+
 		public bool IsSubtypeOf(ValueType type)
 		{
 			ValueType current;
@@ -37,6 +43,12 @@ namespace Hype
 		public override string ToString()
 		{
 			return TypeName;
+		}
+
+		public void AddSubtype(ValueType type)
+		{
+			Subtypes.Add(type);
+			type.Supertype = this;
 		}
 	}
 }

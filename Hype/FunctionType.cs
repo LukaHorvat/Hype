@@ -51,12 +51,12 @@ namespace Hype
 			if (arguments[0] == null)
 			{
 				if (Fixity == Hype.Fixity.Prefix) return MatchType.Mismatch;
-				if (InputSignature[1] == ValueType.GetType("Uncertain") || InputSignature[1] == arguments[1].Type) return MatchType.PartialMatch;
+				if (InputSignature[1] == ValueType.GetType("Uncertain") || arguments[1].Type.IsSubtypeOf(InputSignature[1])) return MatchType.PartialMatch;
 				return MatchType.Mismatch;
 			}
 
 			if (arguments.Count > InputSignature.Count) return MatchType.Mismatch;
-			bool matchSoFar = arguments.Select((x, i) => new[] { x.Type, ValueType.GetType("Uncertain") }.Contains(InputSignature[i])).All(x => x);
+			bool matchSoFar = arguments.Select((x, i) => x.Type.IsSubtypeOf(InputSignature[i]) || InputSignature[i] == ValueType.GetType("Uncertain")).All(x => x);
 			if (!matchSoFar) return MatchType.Mismatch;
 			if (arguments.Count == InputSignature.Count && matchSoFar) return MatchType.FullMatch;
 			return MatchType.PartialMatch;

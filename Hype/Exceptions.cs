@@ -11,7 +11,42 @@ namespace Hype
 		Individual
 	}
 
-	class NoMatchingSignature : Exception
+	class ExpressionException : Exception
+	{
+		public ExpressionException(string message)
+			: base(message) { }
+	}
+
+	class MultipleValuesLeft : ExpressionException
+	{
+		public MultipleValuesLeft()
+			: base("More than one value was left after the expression executed.") { }
+	}
+
+	class FunctionCallException : Exception
+	{
+
+	}
+
+	class NonPrefixFunctionAsArgument : FunctionCallException
+	{
+		string message;
+
+		public override string Message
+		{
+			get
+			{
+				return message;
+			}
+		}
+
+		public NonPrefixFunctionAsArgument()
+		{
+			message = "Function passed as an argument was in infix form. Surround it with brackets.";
+		}
+	}
+
+	class NoMatchingSignature : FunctionCallException
 	{
 		string message;
 
@@ -27,7 +62,7 @@ namespace Hype
 		{
 			if (type == SignatureMismatchType.Group)
 			{
-				
+
 				message = "No functions of the group match this signature";
 			}
 			else

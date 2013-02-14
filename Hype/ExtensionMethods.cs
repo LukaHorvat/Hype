@@ -14,6 +14,12 @@ namespace Hype
 			return true;
 		}
 
+		public static bool MemberwiseEquals<T>(this IList<T> self, Func<T, T, bool> comp, IList<T> other) where T : class
+		{
+			if (self.Count != other.Count) return false;
+			return !(self.Select((t, i) => comp.Invoke(other[i], t)).Contains(false));
+		}
+
 		public static List<T> Pop<T>(this Stack<T> self, int number)
 		{
 			var list = new List<T>();

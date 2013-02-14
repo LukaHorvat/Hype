@@ -10,10 +10,10 @@ namespace Hype
 		Left, Right, NoArgument
 	}
 
-	class FunctionGroup : Value, IInvokable
+	class FunctionGroup : Functional, IInvokable
 	{
 		public List<IInvokable> Functions;
-		public Fixity Fixity { get; protected set; }
+		public override Fixity Fixity { get; set; }
 		public FunctionType Signature { get { return Functions.Count > 0 ? Functions[0].Signature : null; } }
 
 		public FunctionGroup(Function func)
@@ -72,7 +72,7 @@ namespace Hype
 			foreach (var func in group.Functions) AddFunction(func);
 		}
 
-		public IInvokable MatchesNoArguments
+		public override IInvokable MatchesNoArguments
 		{
 			get
 			{
@@ -103,6 +103,15 @@ namespace Hype
 					}
 				}
 				throw new NoMatchingSignature(SignatureMismatchType.Group);
+			}
+		}
+
+
+		public ICurryable PrefixApplication
+		{
+			get
+			{
+				return new PartialApplication(new List<Value>(), Functions.Clone(), Hype.Fixity.Prefix, Var.Name);
 			}
 		}
 	}
