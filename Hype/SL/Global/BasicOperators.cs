@@ -38,7 +38,7 @@ namespace Hype.SL.Global
 		public Value Assign(List<Value> arguments)
 		{
 			if (arguments[0].Var.Name != "")
-			{
+			{ 
 				Interpreter.CurrentScopeNode.AddToScope(arguments[0].Var.Name, arguments[1]);
 			}
 			else

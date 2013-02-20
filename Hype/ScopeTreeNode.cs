@@ -16,14 +16,12 @@ namespace Hype
     class ScopeTreeNode
     {
         public Dictionary<string, Value> Values;
-        public Dictionary<string, ValueKind> Kinds;
         public List<ScopeTreeNode> Children;
         public ScopeTreeNode Parent;
 
         public ScopeTreeNode(ScopeTreeNode parent = null)
         {
             Values = new Dictionary<string, Value>();
-            Kinds = new Dictionary<string, ValueKind>();
             Children = new List<ScopeTreeNode>();
             Parent = parent;
         }
@@ -32,16 +30,6 @@ namespace Hype
         {
             ScopeTreeNode scope = SearchScope(key) ?? this;
             scope.AddToThisScope(key, val);
-        }
-
-        public ValueKind GetKind(string key)
-        {
-            ScopeTreeNode scope;
-            if ((scope = SearchScope(key)) != null)
-            {
-                return scope.Kinds[key];
-            }
-            return ValueKind.Nothing;
         }
 
         public Value Lookup(string key)
@@ -64,45 +52,9 @@ namespace Hype
 
         private void AddToThisScope(string key, Value val)
         {
-            if (!Kinds.ContainsKey(key)) Kinds[key] = ValueKind.Nothing;
-
-            var kind = val.Kind;
-            if (kind != Kinds[key])
-            {
-				if (kind == ValueKind.Function)
-				{
-					if (val is Function)
-					{
-						Values[key] = new FunctionGroup(val as Function);
-					}
-					if (val is PartialApplication)
-					{
-						Values[key] = new FunctionGroup(val as Function);
-					}
-					if (val is FunctionGroup) Values[key] = val;
-				}
-				else
-				{
-					Values[key] = val;
-				}
-				Kinds[key] = kind;
-            }
-            else if (kind == ValueKind.Function)
-            {
-                var fix = (Values[key] as FunctionGroup).Fixity;
-                if (val is Function)
-                {
-                    (Values[key] as FunctionGroup).AddWithOverride(val as Function);
-                }
-                if (val is FunctionGroup)
-                {
-                    (Values[key] as FunctionGroup).MergeOrReplace(val as FunctionGroup);
-                }
-            }
-            else if (val.Kind == ValueKind.Object)
-            {
-                Values[key] = val;
-            }
+			if (val.Var.Name == "") val.Var.Name = key;
+			if (val is Function) Values[key] = new PartialApplication(val as Function);
+			else Values[key] = val;
         }
     }
 }

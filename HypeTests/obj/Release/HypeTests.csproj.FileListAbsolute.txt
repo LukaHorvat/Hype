@@ -1,0 +1,7 @@
+C:\Users\Luka\Documents\GitHub\Hype\HypeTests\bin\Release\HypeTests.dll
+C:\Users\Luka\Documents\GitHub\Hype\HypeTests\bin\Release\HypeTests.pdb
+C:\Users\Luka\Documents\GitHub\Hype\HypeTests\bin\Release\Hype.exe
+C:\Users\Luka\Documents\GitHub\Hype\HypeTests\bin\Release\Hype.pdb
+C:\Users\Luka\Documents\GitHub\Hype\HypeTests\obj\Release\HypeTests.csprojResolveAssemblyReference.cache
+C:\Users\Luka\Documents\GitHub\Hype\HypeTests\obj\Release\HypeTests.dll
+C:\Users\Luka\Documents\GitHub\Hype\HypeTests\obj\Release\HypeTests.pdb

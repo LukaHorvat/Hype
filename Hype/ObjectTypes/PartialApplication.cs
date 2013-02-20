@@ -5,6 +5,11 @@ using System.Text;
 
 namespace Hype
 {
+	enum Side
+	{
+		Left, Right, NoArgument
+	}
+
 	enum MatchType
 	{
 		Mismatch,
@@ -14,27 +19,41 @@ namespace Hype
 
 	class PartialApplication : Functional, ICurryable
 	{
-		public List<List<Value>> Arguments;
-		public List<IInvokable> PotentialMatches;
-		public override Fixity Fixity { get; set; }
+		public List<PartialCall> PotentialMatches;
+
+		private Fixity fixity;
+		public override Fixity Fixity
+		{
+			get { return fixity; }
+			set
+			{
+				if (value != Fixity.Prefix)
+				{
+					if (PotentialMatches.Any(m => m.ArgumentsLeft != 2))
+					{
+						throw new ExpressionException("Unable to set fixity to infix because not al overloads require exactly 2 arguments.");
+					}
+				}
+				fixity = value;
+			}
+		}
 
 		private string funcName = "";
-		private Dictionary<IInvokable, List<Value>> functionArgumentLink;
 
-		public PartialApplication(List<Value> args, List<IInvokable> matches, FunctionGroup group)
-			: this(args, matches, group.Fixity, group.Var.Name) { }
+		public PartialApplication(Function func)
+			: this(new List<IInvokable>() { func }, func.Fixity, func.Var.Name) { }
 
-		public PartialApplication(List<Value> args, Function func)
-			: this(args, new List<IInvokable>() { func }, Fixity.Prefix, func.Var.Name) { }
+		public PartialApplication(List<IInvokable> matches, Fixity fixity, string name)
+			: this(matches.Select(m => new PartialCall(m)).ToList(), fixity, name) { }
 
-		public PartialApplication(List<Value> args, List<IInvokable> matches, Fixity fixity, string name)
+		public PartialApplication(List<PartialCall> matches, Fixity fixity, string name)
 			: base(ValueType.GetType("FunctionGroup"))
 		{
-			Arguments = new List<List<Value>>();
-			functionArgumentLink = new Dictionary<IInvokable, List<Value>>();
-			Arguments.Add(args);
+			if (fixity != Hype.Fixity.Prefix && matches.Any(m => m.ArgumentsLeft != 2))
+			{
+				throw new ExpressionException("Those overloads can't be added to an infix function because not all of them require exactly two arguments.");
+			}
 			PotentialMatches = matches;
-			foreach (var match in PotentialMatches) functionArgumentLink[match] = args;
 			Fixity = fixity;
 			funcName = name;
 			Kind = ValueKind.Function;
@@ -42,11 +61,6 @@ namespace Hype
 
 		public Value Apply(Value argument, Side side)
 		{
-			var arguments = Arguments.Clone();
-			for (int i = 0; i < arguments.Count; ++i)
-			{
-				arguments[i] = arguments[i].Clone();
-			}
 			var potentialMatches = PotentialMatches.Clone();
 
 			if (argument is Functional && ((IFunctionGroup)argument).Fixity != Fixity.Prefix)
@@ -54,34 +68,68 @@ namespace Hype
 				throw new NonPrefixFunctionAsArgument();
 			}
 
-			if (Fixity != Fixity.Prefix && arguments.Count == 0 && side == Side.Right)
+			for (int i = 0; i < potentialMatches.Count; i++)
 			{
-				foreach (
-				arguments.Add(null);
-				arguments.Add(argument);
-			}
-			else if (arguments.Count == 2 && arguments[0] == null)
-			{
-				arguments[0] = argument;
-			}
-			else if (argument != null) arguments.Add(argument);
-
-			for (int i = 0; i < potentialMatches.Count; ++i)
-			{
-				var res = potentialMatches[i].Signature.MatchesArguments(arguments);
-				if (res == MatchType.FullMatch)
+				if (Fixity != Hype.Fixity.Prefix && side == Side.Right)
 				{
-					return potentialMatches[i].Execute(arguments);
+					if (potentialMatches[i].CheckArgumentRight(argument) == MatchType.Mismatch)
+					{
+						potentialMatches.RemoveAt(i);
+						i--;
+						continue;
+					}
+					else
+					{
+						potentialMatches[i] = potentialMatches[i].AddRight(argument);
+					}
 				}
-				if (res == MatchType.Mismatch)
+				else
 				{
-					potentialMatches.RemoveAt(i);
-					--i;
+					if (potentialMatches[i].CheckArgument(argument) == MatchType.Mismatch)
+					{
+						potentialMatches.RemoveAt(i);
+						i--;
+						continue;
+					}
+					else
+					{
+						potentialMatches[i] = potentialMatches[i].Add(argument);
+						if (potentialMatches[i].Invokable) return potentialMatches[i].Invoke();
+					}
 				}
 			}
-			if (potentialMatches.Count == 0) throw new Exception("No fuctions match the signature.");
+			if (potentialMatches.Count == 0) throw new NoMatchingSignature(SignatureMismatchType.Group);
 
-			return new PartialApplication(arguments, potentialMatches.Clone(), Fixity.Prefix, funcName);
+			return new PartialApplication(potentialMatches, Fixity.Prefix, funcName) { Var = new Variable(Var.Name) };
+		}
+
+		public PartialApplication Merge(PartialApplication other)
+		{
+			var appl = new PartialApplication(PotentialMatches.Clone(), Fixity, funcName) { Var = new Variable(Var.Name) };
+			foreach (var function in other.PotentialMatches) appl.AddFunction(function);
+			return appl;
+		}
+
+		public PartialApplication Merge(IInvokable function)
+		{
+			var appl = new PartialApplication(PotentialMatches.Clone(), Fixity, funcName) { Var = new Variable(Var.Name) };
+			appl.AddFunction(function);
+			return appl;
+		}
+
+		private void AddFunction(IInvokable func)
+		{
+			var partialCall = new PartialCall(func);
+			AddFunction(partialCall);
+		}
+
+		private void AddFunction(PartialCall partialCall)
+		{
+			if (fixity != Hype.Fixity.Prefix && partialCall.ArgumentsLeft != 2)
+			{
+				throw new ExpressionException("This overload can't be added to an infix function because it does not require exactly two arguments.");
+			}
+			PotentialMatches.Add(partialCall);
 		}
 
 		public override string ToString()
@@ -93,16 +141,15 @@ namespace Hype
 		{
 			get
 			{
-				return PotentialMatches.FirstOrDefault(f => f.Signature.InputSignature.Count == 0);
+				return PotentialMatches.FirstOrDefault(f => f.Invokable).Function;
 			}
 		}
-
 
 		public ICurryable PrefixApplication
 		{
 			get
 			{
-				return new PartialApplication(Arguments, PotentialMatches.Clone(), Fixity.Prefix, funcName);
+				return new PartialApplication(PotentialMatches.Clone(), Fixity.Prefix, funcName) { Var = new Variable(Var.Name) };
 			}
 		}
 	}

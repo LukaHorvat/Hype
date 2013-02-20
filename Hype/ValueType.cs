@@ -17,7 +17,6 @@ namespace Hype
 		}
 
 		static Dictionary<string, ValueType> types = new Dictionary<string,ValueType>(); //To prevent creation of new types when a value is instanced
-		private string p;
 
 		public static ValueType GetType(string name)
 		{

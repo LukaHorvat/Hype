@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using KindFixityPair = System.Tuple<Hype.ValueKind, Hype.Fixity>;
 using Hype.SL.Global;
 
 namespace Hype
@@ -11,6 +10,7 @@ namespace Hype
 	class Expression : ExpressionItem
 	{
 		public List<ExpressionItem> Sequence;
+		public List<ExecutionNode> Nodes;
 
 		private List<List<LinkedListNode<Value>>> functionList;
 		private Stack<LinkedListNode<Value>> functionStack;
@@ -20,112 +20,166 @@ namespace Hype
 			: base(CheckToken(bracketToken))
 		{
 			Sequence = new List<ExpressionItem>();
+		}
 
+		public void ParseNodes()
+		{
+			Nodes = new List<ExecutionNode>();
+			var current = new List<ExpressionItem>();
+			foreach (var item in Sequence)
+			{
+				if (item.OriginalToken.Type == TokenType.Separator)
+				{
+					Nodes.Add(new ExecutionNode(current));
+					if (Nodes.Count > 1)
+					{
+						Nodes[Nodes.Count - 2].Next = Nodes.Last();
+					}
+					current = new List<ExpressionItem>();
+				}
+				else
+				{
+					current.Add(item);
+				}
+			}
+			if (current.Count > 0)
+			{
+				Nodes.Add(new ExecutionNode(current));
+				if (Nodes.Count > 1)
+				{
+					Nodes[Nodes.Count - 2].Next = Nodes.Last();
+				}
+			}
 		}
 
 		public Value Execute(Interpreter interpreter)
 		{
-			int numFixities = Enum.GetNames(typeof(Fixity)).Length;
-			functionList = new List<List<LinkedListNode<Value>>>(numFixities);
-			for (int i = 0; i < numFixities; ++i) functionList.Add(new List<LinkedListNode<Value>>());
+			if (Nodes.Count == 0) return Void.Instance;
 
-			functionStack = new Stack<LinkedListNode<Value>>();
-			currentExecution = new LinkedList<Value>();
-			Value val;
-
-			for (int i = 0; i < Sequence.Count; ++i)
+			Value lastValue = null;
+			for (var execNode = Nodes[0]; execNode != null; execNode = execNode.Next)
 			{
-				val = null;
-				var tok = Sequence[i].OriginalToken;
-				switch (tok.Type)
+				var items = execNode.InnerExpression;
+				int numFixities = Enum.GetNames(typeof(Fixity)).Length;
+				functionList = new List<List<LinkedListNode<Value>>>(numFixities);
+				for (int i = 0; i < numFixities; ++i) functionList.Add(new List<LinkedListNode<Value>>());
+
+				functionStack = new Stack<LinkedListNode<Value>>();
+				currentExecution = new LinkedList<Value>();
+				Value val;
+
+				for (int i = 0; i < items.Count; ++i)
 				{
-					case TokenType.Literal:
-						currentExecution.AddLast(interpreter.ParseLiteral(tok.Content));
-						break;
-					case TokenType.Identifier:
-						val = interpreter.CurrentScopeNode.Lookup(tok.Content);
-						break;
-					case TokenType.Group:
-						val = (Sequence[i] as Expression).Execute(interpreter);
-						break;
-				}
-				if (val != null)
-				{
-					currentExecution.AddLast(val);
-					if (val.Type == ValueType.GetType("FunctionGroup"))
+					val = null;
+					var tok = items[i].OriginalToken;
+					switch (tok.Type)
 					{
-						var fg = (IFunctionGroup)val;
-						functionList[(int)fg.Fixity].Add(currentExecution.Last);
+						case TokenType.Literal:
+							currentExecution.AddLast(interpreter.ParseLiteral(tok.Content));
+							break;
+						case TokenType.Identifier:
+							val = interpreter.CurrentScopeNode.Lookup(tok.Content);
+							break;
+						case TokenType.Group:
+							if ((items[i] as Expression).OriginalToken.Content == "{") val = new CodeBlock(items[i] as Expression);
+							else val = (items[i] as Expression).Execute(interpreter);
+							break;
+					}
+					if (val != null)
+					{
+						currentExecution.AddLast(val);
+						if (val.Type == ValueType.GetType("FunctionGroup"))
+						{
+							var fg = (IFunctionGroup)val;
+							functionList[(int)fg.Fixity].Add(currentExecution.Last);
+						}
 					}
 				}
-			}
 
-			var exceptions = new Queue<FunctionCallException>();
+				var exceptions = new Queue<FunctionCallException>();
 
-			for (int j = functionList.Count - 1; j >= 0; --j) for (int k = functionList[j].Count - 1; k >= 0; --k) functionStack.Push(functionList[j][k]);
-			while (functionStack.Count > 0)
-			{
-				var funcNode = functionStack.Pop();
-				var func = funcNode.Value as ICurryable;
-
-				Value res = null;
-				Side side;
-
-				if (func.Fixity != Fixity.Prefix && funcNode.Previous != null)
+				for (int j = functionList.Count - 1; j >= 0; --j) for (int k = functionList[j].Count - 1; k >= 0; --k) functionStack.Push(functionList[j][k]);
+				while (functionStack.Count > 0)
 				{
-					side = Side.Left;
-					try
+					var funcNode = functionStack.Pop();
+					var func = funcNode.Value as ICurryable;
+
+					Value res = null;
+					Side side;
+
+					if (func.Fixity != Fixity.Prefix && funcNode.Previous != null)
 					{
-						res = func.Apply(funcNode.Previous.Value, Side.Left);
-					}
-					catch (FunctionCallException e)
-					{
-						exceptions.Enqueue(e);
-						continue;
-					}
-				}
-				else
-				{
-					if (funcNode.Next == null)
-					{
-						side = Side.NoArgument;
-						res = (Value)func;
-					}
-					else
-					{
-						side = Side.Right;
+						side = Side.Left;
 						try
 						{
-							res = func.Apply(funcNode.Next.Value, Side.Right);
+							res = func.Apply(funcNode.Previous.Value, Side.Left);
+#if DEBUG
+							interpreter.Log.Add(LogEntry.Applied(funcNode.Previous.Value, func, res));
+							if (interpreter.HeavyDebug) interpreter.Log.Add(LogEntry.State(this.Copy<Expression>()));
+#endif
 						}
 						catch (FunctionCallException e)
 						{
 							exceptions.Enqueue(e);
+#if DEBUG
+							interpreter.Log.Add(LogEntry.Caught(e));
+							if (interpreter.HeavyDebug) interpreter.Log.Add(LogEntry.State(this.Copy<Expression>()));
+#endif
 							continue;
 						}
 					}
+					else
+					{
+						if (funcNode.Next == null)
+						{
+							side = Side.NoArgument;
+							res = (Value)func;
+						}
+						else
+						{
+							side = Side.Right;
+							try
+							{
+								res = func.Apply(funcNode.Next.Value, Side.Right);
+#if DEBUG
+								interpreter.Log.Add(LogEntry.Applied(funcNode.Next.Value, func, res));
+								if (interpreter.HeavyDebug) interpreter.Log.Add(LogEntry.State(this.Copy<Expression>()));
+#endif
+							}
+							catch (FunctionCallException e)
+							{
+								exceptions.Enqueue(e);
+#if DEBUG
+								interpreter.Log.Add(LogEntry.Caught(e));
+								if (interpreter.HeavyDebug) interpreter.Log.Add(LogEntry.State(this.Copy<Expression>()));
+#endif
+								continue;
+							}
+						}
+					}
+					if (side == Side.Left)
+					{
+						currentExecution.Remove(funcNode.Previous);
+					}
+					else if (side == Side.Right)
+					{
+						currentExecution.Remove(funcNode.Next);
+					}
+					var node = currentExecution.AddAfter(funcNode, res);
+					currentExecution.Remove(funcNode);
+					if (res != func && res.Type == ValueType.GetType("FunctionGroup") && currentExecution.Count > 1) functionStack.Push(node);
 				}
-				if (side == Side.Left)
-				{
-					currentExecution.Remove(funcNode.Previous);
-				}
-				else if (side == Side.Right)
-				{
-					currentExecution.Remove(funcNode.Next);
-				}
-				var node = currentExecution.AddAfter(funcNode, res);
-				currentExecution.Remove(funcNode);
-				if (res != func && res.Type == ValueType.GetType("FunctionGroup") && currentExecution.Count > 1) functionStack.Push(node);
-			}
 
-			if (currentExecution.Count > 1)
-			{
-				if (exceptions.Count > 0) throw exceptions.Dequeue();
-				else throw new MultipleValuesLeft();
+				if (currentExecution.Count > 1)
+				{
+					if (exceptions.Count > 0) throw exceptions.Dequeue();
+					else throw new MultipleValuesLeft();
+				}
+				if (currentExecution.First.Value.Type == ValueType.GetType("FunctionGroup")
+					&& ((IFunctionGroup)currentExecution.First.Value).Fixity != Fixity.Prefix) return (Value)(currentExecution.First.Value as ICurryable).PrefixApplication;
+				lastValue = currentExecution.First();
 			}
-			if (currentExecution.First.Value.Type == ValueType.GetType("FunctionGroup")
-				&& ((IFunctionGroup)currentExecution.First.Value).Fixity != Fixity.Prefix) return (Value)(currentExecution.First.Value as ICurryable).PrefixApplication;
-			return currentExecution.First.Value;
+			return lastValue;
 		}
 
 		private static Token CheckToken(Token token)

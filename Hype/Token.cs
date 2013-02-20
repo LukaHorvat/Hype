@@ -10,7 +10,8 @@ namespace Hype
 	{
 		Group,
 		Identifier,
-		Literal
+		Literal,
+		Separator
 	}
 
 	class Token

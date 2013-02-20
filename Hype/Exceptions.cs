@@ -25,7 +25,10 @@ namespace Hype
 
 	class FunctionCallException : Exception
 	{
+		public FunctionCallException() { }
 
+		public FunctionCallException(string message)
+			: base(message) { }
 	}
 
 	class NonPrefixFunctionAsArgument : FunctionCallException
@@ -43,6 +46,24 @@ namespace Hype
 		public NonPrefixFunctionAsArgument()
 		{
 			message = "Function passed as an argument was in infix form. Surround it with brackets.";
+		}
+	}
+
+	class RightArgumentPassedToNonInfixFunction : FunctionCallException
+	{
+		string message;
+
+		public override string Message
+		{
+			get
+			{
+				return message;
+			}
+		}
+
+		public RightArgumentPassedToNonInfixFunction()
+		{
+			message = "The right side arguments was passed to a function that's not in infix form.";
 		}
 	}
 

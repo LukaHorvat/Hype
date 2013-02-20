@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hype.SL.Global;
+using System.IO;
 
 namespace Hype
 {
 	class Interpreter
 	{
+		public List<LogEntry> Log;
+		public bool HeavyDebug = false;
+
 		public Expression RootExpression;
 
 		/// <summary>
@@ -30,6 +34,7 @@ namespace Hype
 			scopeStack = new Stack<ScopeTreeNode>();
 			ScopeTreeRoot = new ScopeTreeNode();
 			RootExpression = expression;
+			Log = new List<LogEntry>();
 		}
 
 		public void LoadLibrary(Action<Interpreter> loadFunction)
@@ -41,6 +46,12 @@ namespace Hype
 		{
 			EnterScope(ScopeTreeRoot);
 			RootExpression.Execute(this);
+#if DEBUG
+			using (var writer = new StreamWriter("log.txt"))
+			{
+				Log.ForEach(e => writer.WriteLine(e));
+			}
+#endif
 		}
 
 		public void EnterScope(ScopeTreeNode node)

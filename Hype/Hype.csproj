@@ -44,6 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuiltInFunctions.cs" />
+    <Compile Include="ExecutionNode.cs" />
+    <Compile Include="LogEntry.cs" />
+    <Compile Include="ObjectTypes\CodeBlock.cs" />
     <Compile Include="ObjectTypes\CSharpFunction.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Expression.cs" />
@@ -51,13 +54,13 @@
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="ObjectTypes\Function.cs" />
     <Compile Include="ObjectTypes\Functional.cs" />
-    <Compile Include="ObjectTypes\FunctionGroup.cs" />
     <Compile Include="FunctionType.cs" />
     <Compile Include="ObjectTypes\ICurryable.cs" />
     <Compile Include="ObjectTypes\IFunctionGroup.cs" />
     <Compile Include="ObjectTypes\IInvokable.cs" />
     <Compile Include="Interpreter.cs" />
     <Compile Include="ObjectTypes\LazyExpression.cs" />
+    <Compile Include="ObjectTypes\PartialCall.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="ObjectTypes\PartialApplication.cs" />
     <Compile Include="Program.cs" />

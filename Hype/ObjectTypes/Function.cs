@@ -91,7 +91,7 @@ namespace Hype
 
 		public Value Apply(Value val, Side side)
 		{
-			var partial = new PartialApplication(new List<Value>(), this);
+			var partial = new PartialApplication(this);
 			return partial.Apply(val, side);
 		}
 
@@ -103,7 +103,7 @@ namespace Hype
 
 		public ICurryable PrefixApplication
 		{
-			get { return new PartialApplication(new List<Value>(), new List<IInvokable>() { this }, Hype.Fixity.Prefix, Var.Name); }
+			get { return new PartialApplication(new List<IInvokable>() { this }, Hype.Fixity.Prefix, Var.Name); }
 		}
 	}
 }

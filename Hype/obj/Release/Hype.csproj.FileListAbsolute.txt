@@ -1,0 +1,5 @@
+C:\Users\Luka\Documents\GitHub\Hype\Hype\bin\Release\Hype.exe.config
+C:\Users\Luka\Documents\GitHub\Hype\Hype\bin\Release\Hype.exe
+C:\Users\Luka\Documents\GitHub\Hype\Hype\bin\Release\Hype.pdb
+C:\Users\Luka\Documents\GitHub\Hype\Hype\obj\Release\Hype.exe
+C:\Users\Luka\Documents\GitHub\Hype\Hype\obj\Release\Hype.pdb

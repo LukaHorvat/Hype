@@ -7,17 +7,19 @@ using System.Threading.Tasks;
 using Hype.SL;
 using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("HypeTests")]
+[assembly: InternalsVisibleTo("HypeTests")]
 
 namespace Hype
 {
 	class Program
 	{
+		//TODO: Functions without arguments
+
 		static void Main(string[] args)
 		{
 			using (StreamReader reader = new StreamReader("samples/curry.hy"))
 			{
-                var parser = new Parser();
+				var parser = new Parser();
 				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);
 
 				var interpreter = new Interpreter(output);
