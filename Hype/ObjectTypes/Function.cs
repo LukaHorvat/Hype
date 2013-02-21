@@ -59,7 +59,11 @@ namespace Hype
 		/// <summary>
 		/// Comma
 		/// </summary>
-		Infix_17 = 17
+		Infix_17 = 17,
+		/// <summary>
+		/// Other
+		/// </summary>
+		Infix_18 = 18
 	}
 
 	class Function : Functional, IInvokable
@@ -79,7 +83,7 @@ namespace Hype
 		public Function(Fixity fixity, int numArguments)
 			: base(ValueType.GetType("Function"))
 		{
-			if (fixity > 0) throw new Exception("This constructor can only be used for prefix functions");
+			if (fixity > 0 && numArguments != 2) throw new Exception("This constructor can only be used for prefix functions");
 			Signature = new FunctionType(fixity, numArguments);
 			Kind = ValueKind.Function;
 		}

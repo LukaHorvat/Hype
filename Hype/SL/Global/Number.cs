@@ -20,5 +20,10 @@ namespace Hype.SL.Global
 		{
 			return "Number: " + Num;
 		}
+
+		public override string Show()
+		{
+			return "" + Num;
+		}
 	}
 }

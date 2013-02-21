@@ -21,5 +21,10 @@ namespace Hype
 			Type = type;
 			Kind = ValueKind.Object;
 		}
+
+		public virtual string Show()
+		{
+			return "Var: " + Var.Name + ", Type: " + Type;
+		}
 	}
 }

@@ -13,11 +13,9 @@ namespace Hype
 {
 	class Program
 	{
-		//TODO: Functions without arguments
-
 		static void Main(string[] args)
 		{
-			using (StreamReader reader = new StreamReader("samples/if.hy"))
+			using (StreamReader reader = new StreamReader("samples/loopspeed.hy"))
 			{
 				var parser = new Parser();
 				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);

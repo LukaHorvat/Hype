@@ -129,5 +129,43 @@ namespace HypeTests
 				Assert.AreEqual(31, (interpreter.CurrentScopeNode.Lookup("i") as Number).Num);
 			}
 		}
+
+		[TestMethod]
+		public void If()
+		{
+			using (StreamReader reader = new StreamReader(SamplesPath + "if.hy"))
+			{
+				var parser = new Parser();
+				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);
+
+				var interpreter = new Interpreter(output);
+				interpreter.LoadLibrary(StandardLibrary.Load);
+				interpreter.Run();
+
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.Lookup("a"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.Lookup("b"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.Lookup("c"), typeof(Number));
+				Assert.AreEqual(3, (interpreter.CurrentScopeNode.Lookup("a") as Number).Num);
+				Assert.AreEqual(4, (interpreter.CurrentScopeNode.Lookup("b") as Number).Num);
+				Assert.AreEqual(3, (interpreter.CurrentScopeNode.Lookup("c") as Number).Num);
+			}
+		}
+
+		[TestMethod]
+		public void Fact()
+		{
+			using (StreamReader reader = new StreamReader(SamplesPath + "fact.hy"))
+			{
+				var parser = new Parser();
+				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);
+
+				var interpreter = new Interpreter(output);
+				interpreter.LoadLibrary(StandardLibrary.Load);
+				interpreter.Run();
+
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.Lookup("acc"), typeof(Number));
+				Assert.AreEqual(2004310016, (interpreter.CurrentScopeNode.Lookup("acc") as Number).Num);
+			}
+		}
 	}
 }

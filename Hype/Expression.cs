@@ -102,6 +102,10 @@ namespace Hype
 				while (functionStack.Count > 0)
 				{
 					var funcNode = functionStack.Pop();
+					if (!(funcNode.Value is ICurryable))
+					{
+						funcNode.Value = new PartialApplication(funcNode.Value as Function);
+					}
 					var func = funcNode.Value as ICurryable;
 
 					Value res = null;
@@ -167,7 +171,7 @@ namespace Hype
 					}
 					var node = currentExecution.AddAfter(funcNode, res);
 					currentExecution.Remove(funcNode);
-					if (res != func && res.Type == ValueType.GetType("FunctionGroup") && currentExecution.Count > 1) functionStack.Push(node);
+					if (res != func && res.Type.IsSubtypeOf(ValueType.GetType("Functional")) && currentExecution.Count > 1) functionStack.Push(node);
 				}
 
 				if (currentExecution.Count > 1)

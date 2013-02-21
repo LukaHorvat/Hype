@@ -13,5 +13,10 @@ namespace Hype
 		{
 			Var.Name = name;
 		}
+
+		public override string ToString()
+		{
+			return "BlankIdentifier: " + Var.Name;
+		}
 	}
 }

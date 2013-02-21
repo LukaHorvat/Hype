@@ -42,14 +42,17 @@ namespace Hype
 			loadFunction(this);
 		}
 
-		public void Run()
+		public void Run(bool writeLog = false)
 		{
 			EnterScope(ScopeTreeRoot);
 			RootExpression.Execute(this);
 #if DEBUG
-			using (var writer = new StreamWriter("log.txt"))
+			if (writeLog)
 			{
-				Log.ForEach(e => writer.WriteLine(e));
+				using (var writer = new StreamWriter("log.txt"))
+				{
+					Log.ForEach(e => writer.WriteLine(e));
+				}
 			}
 #endif
 		}

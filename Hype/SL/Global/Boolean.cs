@@ -19,5 +19,11 @@ namespace Hype.SL.Global
 		{
 			return "Boolean: " + Bool;
 		}
+
+
+		public override string Show()
+		{
+			return "" + Bool;
+		}
 	}
 }

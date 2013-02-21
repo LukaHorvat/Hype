@@ -26,6 +26,13 @@ namespace Hype.SL
 
 		private static string signaturesFunctions =
 @"for | For | CodeBlock CodeBlock CodeBlock CodeBlock | Void | 0
+if | If | Boolean CodeBlock | Uncertain | 0
+else | Else | Uncertain CodeBlock | Uncertain | 18
+elseIf | ElseIf | Uncertain Boolean | Functional | 18
+exec | Exec | CodeBlock | Uncertain | 0
+consume | Consume | Uncertain | Void | 0
+print | Print | Uncertain | Void | 0
+printLine | PrintLine | Uncertain | Void | 0
 ";
 
 		public static void Load(Interpreter interpreter)

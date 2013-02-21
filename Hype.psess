@@ -36,7 +36,7 @@
   </PostinstrumentEvent>
   <Binaries>
     <ProjBinary>
-      <Path>Hype\obj\Release\Hype.exe</Path>
+      <Path>Hype\obj\Debug\Hype.exe</Path>
       <ArgumentTimestamp>01/01/0001 00:00:00</ArgumentTimestamp>
       <Instrument>true</Instrument>
       <Sample>true</Sample>
@@ -48,8 +48,8 @@
       <LaunchProject>true</LaunchProject>
       <OverrideProjectSettings>false</OverrideProjectSettings>
       <LaunchMethod>Executable</LaunchMethod>
-      <ExecutablePath>Hype\bin\Release\Hype.exe</ExecutablePath>
-      <StartupDirectory>Hype\bin\Release\</StartupDirectory>
+      <ExecutablePath>Hype\bin\Debug\Hype.exe</ExecutablePath>
+      <StartupDirectory>Hype\bin\Debug\</StartupDirectory>
       <Arguments>
       </Arguments>
       <NetAppHost>IIS</NetAppHost>
@@ -67,17 +67,6 @@
       <ProjName>Hype</ProjName>
     </ProjBinary>
   </Binaries>
-  <Reports>
-    <Report>
-      <Path>Hype130220(3).vspx</Path>
-    </Report>
-    <Report>
-      <Path>Hype130220(4).vspx</Path>
-    </Report>
-    <Report>
-      <Path>Hype130221.vspx</Path>
-    </Report>
-  </Reports>
   <Launches>
     <ProjBinary>
       <Path>:PB:{EC578034-8FCF-4888-A7E5-105D247529E0}|Hype\Hype.csproj</Path>
