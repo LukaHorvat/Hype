@@ -35,6 +35,36 @@ namespace Hype.SL.Global
 			return new Number((arguments[0] as Number).Num / (arguments[1] as Number).Num);
 		}
 
+		public Value LessThan(List<Value> arguments)
+		{
+			return new Boolean((arguments[0] as Number).Num < (arguments[1] as Number).Num);
+		}
+
+		public Value GreaterThan(List<Value> arguments)
+		{
+			return new Boolean((arguments[0] as Number).Num > (arguments[1] as Number).Num);
+		}
+
+		public Value LessOrEqual(List<Value> arguments)
+		{
+			return new Boolean((arguments[0] as Number).Num <= (arguments[1] as Number).Num);
+		}
+
+		public Value GreaterOrEqual(List<Value> arguments)
+		{
+			return new Boolean((arguments[0] as Number).Num >= (arguments[1] as Number).Num);
+		}
+
+		public Value Equal(List<Value> arguments)
+		{
+			return new Boolean((arguments[0] as Number).Num == (arguments[1] as Number).Num);
+		}
+
+		public Value NotEqual(List<Value> arguments)
+		{
+			return new Boolean((arguments[0] as Number).Num != (arguments[1] as Number).Num);
+		}
+
 		public Value Assign(List<Value> arguments)
 		{
 			if (arguments[0].Var.Name != "")

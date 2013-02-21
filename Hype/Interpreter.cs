@@ -66,6 +66,10 @@ namespace Hype
 
 		public Value ParseLiteral(string literal)
 		{
+			if (new[] { "true", "false" }.Contains(literal))
+			{
+				return new Hype.SL.Global.Boolean(bool.Parse(literal));
+			}
 			return new Number(int.Parse(literal));
 		}
 	}

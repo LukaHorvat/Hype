@@ -11,7 +11,13 @@ namespace Hype
 		public Func<List<Value>, Value> Function;
 
 		public CSharpFunction(Func<List<Value>, Value> function, Fixity fixity)
-			:base(fixity)
+			: base(fixity)
+		{
+			Function = function;
+		}
+
+		public CSharpFunction(Func<List<Value>, Value> function, Fixity fixity, int numArgs)
+			: base(fixity, numArgs)
 		{
 			Function = function;
 		}

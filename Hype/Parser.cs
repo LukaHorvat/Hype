@@ -60,6 +60,10 @@ namespace Hype
 				{
 					type = TokenType.Literal;
 				}
+				else if (new[] { "true", "false" }.Contains(word))
+				{
+					type = TokenType.Literal;
+				}
 				else if (word == ";")
 				{
 					type = TokenType.Separator;

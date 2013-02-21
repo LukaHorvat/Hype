@@ -19,11 +19,13 @@ namespace Hype.SL.Global
 			(arguments[0] as CodeBlock).Execute(Interpreter);
 			while (true)
 			{
-				var condition = (arguments[1] as CodeBlock).Execute(Interpreter);
+				var condition = (arguments[1] as CodeBlock).Execute(Interpreter) as Boolean;
+				if (condition == null) throw new FunctionCallException();
+				if (!condition.Bool) break;
 				(arguments[3] as CodeBlock).Execute(Interpreter);
 				(arguments[2] as CodeBlock).Execute(Interpreter);
 			}
-			return new Number((arguments[0] as Number).Num + (arguments[1] as Number).Num);
+			return Void.Instance;
 		}
 	}
 }

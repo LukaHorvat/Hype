@@ -87,5 +87,47 @@ namespace HypeTests
 				Assert.AreEqual(5, (interpreter.CurrentScopeNode.Lookup("d") as Number).Num);
 			}
 		}
+
+		[TestMethod]
+		public void Bool()
+		{
+			using (StreamReader reader = new StreamReader(SamplesPath + "bool.hy"))
+			{
+				var parser = new Parser();
+				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);
+
+				var interpreter = new Interpreter(output);
+				interpreter.LoadLibrary(StandardLibrary.Load);
+				interpreter.Run();
+
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.Lookup("a"), typeof(Hype.SL.Global.Boolean));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.Lookup("b"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.Lookup("c"), typeof(Hype.SL.Global.Boolean));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.Lookup("d"), typeof(Hype.SL.Global.Boolean));
+				Assert.AreEqual(false, (interpreter.CurrentScopeNode.Lookup("a") as Hype.SL.Global.Boolean).Bool);
+				Assert.AreEqual(6, (interpreter.CurrentScopeNode.Lookup("b") as Number).Num);
+				Assert.AreEqual(true, (interpreter.CurrentScopeNode.Lookup("c") as Hype.SL.Global.Boolean).Bool);
+				Assert.AreEqual(true, (interpreter.CurrentScopeNode.Lookup("d") as Hype.SL.Global.Boolean).Bool);
+			}
+		}
+
+		[TestMethod]
+		public void For()
+		{
+			using (StreamReader reader = new StreamReader(SamplesPath + "for.hy"))
+			{
+				var parser = new Parser();
+				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);
+
+				var interpreter = new Interpreter(output);
+				interpreter.LoadLibrary(StandardLibrary.Load);
+				interpreter.Run();
+
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.Lookup("a"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.Lookup("i"), typeof(Number));
+				Assert.AreEqual(2147483647, (interpreter.CurrentScopeNode.Lookup("a") as Number).Num);
+				Assert.AreEqual(31, (interpreter.CurrentScopeNode.Lookup("i") as Number).Num);
+			}
+		}
 	}
 }
