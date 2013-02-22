@@ -14,47 +14,51 @@ namespace Hype.SL.Global
 			Interpreter = interpreter;
 		}
 
-		public Value For(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Prefix, "for")]
+		public Void For(CodeBlock init, CodeBlock condition, CodeBlock increment, CodeBlock block)
 		{
-			(arguments[0] as CodeBlock).Execute(Interpreter);
+			init.Execute(Interpreter);
 			while (true)
 			{
-				var condition = (arguments[1] as CodeBlock).Execute(Interpreter) as Boolean;
-				if (condition == null) throw new FunctionCallException();
-				if (!condition.Bool) break;
-				(arguments[3] as CodeBlock).Execute(Interpreter);
-				(arguments[2] as CodeBlock).Execute(Interpreter);
+				var b = condition.Execute(Interpreter) as Boolean;
+				if (b == null) throw new FunctionCallException("The conditional expression of the for loop didn't produce a Boolean value");
+				if (!b.Bool) break;
+				block.Execute(Interpreter);
+				increment.Execute(Interpreter);
 			}
 			return Void.Instance;
 		}
 
-		public Value If(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Prefix, "if")]
+		public Value If(Boolean condition, CodeBlock block)
 		{
-			if ((arguments[0] as Boolean).Bool)
+			if (condition.Bool)
 			{
-				return (arguments[1] as CodeBlock).Execute(Interpreter);
+				return block.Execute(Interpreter);
 			}
 			return new TypedObject("IfFalse");
 		}
 
-		public Value Else(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_18, "else")]
+		public Value Else(Value previous, CodeBlock block)
 		{
-			if (arguments[0].Type == ValueType.GetType("IfFalse"))
+			if (previous.Type == ValueType.GetType("IfFalse"))
 			{
-				return (arguments[1] as CodeBlock).Execute(Interpreter);
+				return block.Execute(Interpreter);
 			}
-			return arguments[0];
+			return previous;
 		}
 
-		public Value ElseIf(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_18, "elseIf")]
+		public Functional ElseIf(Value previous, Boolean condition)
 		{
-			if (arguments[0].Type == ValueType.GetType("IfFalse"))
+			if (previous.Type == ValueType.GetType("IfFalse"))
 			{
-				if ((arguments[1] as Boolean).Bool)
+				if (condition.Bool)
 				{
 					//If the previous if was false and the current condition is true,
 					//return the exec function that will execute the following CodeBlock
-					return Interpreter.CurrentScopeNode.Lookup("exec");
+					return (Functional)Interpreter.CurrentScopeNode.Lookup("exec");
 				}
 				else
 				{
@@ -66,29 +70,33 @@ namespace Hype.SL.Global
 			else
 			{
 				//If the previous condition was true, just consume the following CodeBlock
-				return Interpreter.CurrentScopeNode.Lookup("consume");
+				return (Functional)Interpreter.CurrentScopeNode.Lookup("consume");
 			}
 		}
 
-		public Value Exec(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Prefix, "exec")]
+		public Value Exec(CodeBlock block)
 		{
-			return (arguments[0] as CodeBlock).Execute(Interpreter);
+			return block.Execute(Interpreter);
 		}
 
-		public Value Consume(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Prefix, "consume")]
+		public Void Consume(Value arg)
 		{
 			return Void.Instance;
 		}
 
-		public Value PrintLine(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Prefix, "printLine")]
+		public Void PrintLine(Value arg)
 		{
-			Console.WriteLine(arguments[0].Show());
+			Console.WriteLine(arg.Show());
 			return Void.Instance;
 		}
 
-		public Value Print(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Prefix, "print")]
+		public Void Print(Value arg)
 		{
-			Console.Write(arguments[0].Show());
+			Console.Write(arg.Show());
 			return Void.Instance;
 		}
 	}

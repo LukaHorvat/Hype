@@ -15,67 +15,78 @@ namespace Hype.SL.Global
 			Interpreter = interpreter;
 		}
 
-		public Value Add(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_6, "+")]
+		public Number Add(Number a, Number b)
 		{
-			return new Number((arguments[0] as Number).Num + (arguments[1] as Number).Num);
+			return new Number(a.Num + b.Num);
 		}
 
-		public Value Subtract(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_6, "-")]
+		public Number Subtract(Number a, Number b)
 		{
-			return new Number((arguments[0] as Number).Num - (arguments[1] as Number).Num);
+			return new Number(a.Num - b.Num);
 		}
 
-		public Value Multiply(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_5, "*")]
+		public Number Multiply(Number a, Number b)
 		{
-			return new Number((arguments[0] as Number).Num * (arguments[1] as Number).Num);
+			return new Number(a.Num * b.Num);
 		}
 
-		public Value Divide(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_5, "/")]
+		public Number Divide(Number a, Number b)
 		{
-			return new Number((arguments[0] as Number).Num / (arguments[1] as Number).Num);
+			return new Number(a.Num / b.Num);
 		}
 
-		public Value LessThan(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_8, "<")]
+		public Boolean LessThan(Number a, Number b)
 		{
-			return new Boolean((arguments[0] as Number).Num < (arguments[1] as Number).Num);
+			return new Boolean(a.Num < b.Num);
 		}
 
-		public Value GreaterThan(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_8, ">")]
+		public Boolean GreaterThan(Number a, Number b)
 		{
-			return new Boolean((arguments[0] as Number).Num > (arguments[1] as Number).Num);
+			return new Boolean(a.Num > b.Num);
 		}
 
-		public Value LessOrEqual(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_8, "<=")]
+		public Boolean LessOrEqual(Number a, Number b)
 		{
-			return new Boolean((arguments[0] as Number).Num <= (arguments[1] as Number).Num);
+			return new Boolean(a.Num <= b.Num);
 		}
 
-		public Value GreaterOrEqual(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_8, ">=")]
+		public Boolean GreaterOrEqual(Number a, Number b)
 		{
-			return new Boolean((arguments[0] as Number).Num >= (arguments[1] as Number).Num);
+			return new Boolean(a.Num >= b.Num);
 		}
 
-		public Value Equal(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_9, "==")]
+		public Boolean Equal(Number a, Number b)
 		{
-			return new Boolean((arguments[0] as Number).Num == (arguments[1] as Number).Num);
+			return new Boolean(a.Num == b.Num);
 		}
 
-		public Value NotEqual(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_9, "!=")]
+		public Boolean NotEqual(Number a, Number b)
 		{
-			return new Boolean((arguments[0] as Number).Num != (arguments[1] as Number).Num);
+			return new Boolean(a.Num != b.Num);
 		}
 
-		public Value Assign(List<Value> arguments)
+		[FunctionAttributes(Hype.Fixity.Infix_15, "=")]
+		public Value Assign(Value variable, Value obj)
 		{
-			if (arguments[0].Var.Name != "")
+			if (variable.Var.Name != "")
 			{ 
-				Interpreter.CurrentScopeNode.AddToScope(arguments[0].Var.Name, arguments[1]);
+				Interpreter.CurrentScopeNode.AddToScope(variable.Var.Name, obj);
 			}
 			else
 			{
 				//Could do something interesting
 			}
-			return arguments[1];
+			return obj;
 		}
 	}
 }

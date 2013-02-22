@@ -10,77 +10,42 @@ namespace Hype.SL
 {
 	class StandardLibrary
 	{
-		private static string signaturesOperators =
-@"+ | Add | Number Number | Number | 6
-- | Subtract | Number Number | Number | 6
-* | Multiply | Number Number | Number | 5
-/ | Divide | Number Number | Number | 5
-< | LessThan | Number Number | Boolean | 8
-> | GreaterThan | Number Number | Boolean | 8
-<= | LessOrEqual | Number Number | Boolean | 8
->= | GreaterOrEqual | Number Number | Boolean | 8
-== | Equal | Number Number | Boolean | 9
-!= | NotEqual | Number Number | Boolean | 9
-= | Assign | Uncertain Uncertain | Uncertain | 15
-";
-
-		private static string signaturesFunctions =
-@"for | For | CodeBlock CodeBlock CodeBlock CodeBlock | Void | 0
-if | If | Boolean CodeBlock | Uncertain | 0
-else | Else | Uncertain CodeBlock | Uncertain | 18
-elseIf | ElseIf | Uncertain Boolean | Functional | 18
-exec | Exec | CodeBlock | Uncertain | 0
-consume | Consume | Uncertain | Void | 0
-print | Print | Uncertain | Void | 0
-printLine | PrintLine | Uncertain | Void | 0
-";
-
 		public static void Load(Interpreter interpreter)
 		{
 			var basicOperators = new BasicOperators(interpreter);
-
-			var lines = signaturesOperators.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-			foreach (var line in lines)
-			{
-				var parts = line.Split('|');
-
-				var func = new CSharpFunction((Func<List<Value>, Value>)Delegate.CreateDelegate(typeof(Func<List<Value>, Value>), basicOperators, parts[1].Trim()), (Fixity)int.Parse(parts[4].Trim()));
-				func.Signature.InputSignature.Clear();
-				func.Signature.OutputSignature.Clear();
-				foreach (var input in parts[2].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
-				{
-					func.Signature.InputSignature.Add(ValueType.GetType(input));
-				}
-				foreach (var input in parts[3].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
-				{
-					func.Signature.OutputSignature.Add(ValueType.GetType(input));
-				}
-
-				interpreter.ScopeTreeRoot.AddToScope(parts[0].Trim(), func);
-			}
-
 			var basicFunctions = new BasicFunctions(interpreter);
 
-			lines = signaturesFunctions.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-			foreach (var line in lines)
+			var methods = new object[] { basicFunctions, basicOperators }
+				.Select(t => new Tuple<object, MethodInfo[]>(t, t.GetType().GetMethods()))
+				.Select(t => t.Item2.Select(m => new Tuple<MethodInfo, object>(m, t.Item1)))
+				.Aggregate((a, m) => a.Concat(m).ToArray())
+				.Where(m => m.Item1.GetCustomAttributes(typeof(FunctionAttributes), false).Length == 1).ToArray();
+
+			foreach (var methodPair in methods)
 			{
-				var parts = line.Split('|');
+				var method = methodPair.Item1;
+				var obj = methodPair.Item2;
+				var attribs = method.GetCustomAttributes(typeof(FunctionAttributes), false)[0] as FunctionAttributes;
+				var arguments = method.GetParameters().Select(p => p.ParameterType).ToArray();
+				var returnType = method.ReturnType;
 
-				var inputTypes = parts[2].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+				if (attribs.Priority != 0) throw new NotImplementedException();
 
-				var func = new CSharpFunction((Func<List<Value>, Value>)Delegate.CreateDelegate(typeof(Func<List<Value>, Value>), basicFunctions, parts[1].Trim()), (Fixity)int.Parse(parts[4].Trim()), inputTypes.Length);
+				Func<List<Value>, Value> del = delegate(List<Value> args)
+				{
+					return (Value)method.Invoke(obj, args.ToArray());
+				};
+
+				var func = new CSharpFunction(del, attribs.Fixity, arguments.Length);
 				func.Signature.InputSignature.Clear();
-				func.Signature.OutputSignature.Clear();
-				foreach (var input in inputTypes)
+				foreach (var type in arguments)
 				{
-					func.Signature.InputSignature.Add(ValueType.GetType(input));
+					if (type == typeof(Value)) func.Signature.InputSignature.Add(ValueType.GetType("Uncertain"));
+					else func.Signature.InputSignature.Add(ValueType.GetType(type.Name));
 				}
-				foreach (var input in parts[3].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
-				{
-					func.Signature.OutputSignature.Add(ValueType.GetType(input));
-				}
+				func.Signature.OutputSignature = ValueType.GetType(returnType == typeof(Value) ? "Uncertain" : returnType.Name);
 
-				interpreter.ScopeTreeRoot.AddToScope(parts[0].Trim(), func);
+				interpreter.ScopeTreeRoot.AddToScope(attribs.Identifier, func);
 			}
 		}
 

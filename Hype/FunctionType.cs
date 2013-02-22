@@ -9,7 +9,7 @@ namespace Hype
 	{
 		public Fixity Fixity;
 		public List<ValueType> InputSignature;
-		public List<ValueType> OutputSignature;
+		public ValueType OutputSignature;
 		public int NumArguments { get { return InputSignature.Count; } }
 
 		public FunctionType(Fixity fixity, int numArguments = 2)
@@ -17,7 +17,6 @@ namespace Hype
 		{
 			Fixity = fixity;
 			InputSignature = new List<ValueType>();
-			OutputSignature = new List<ValueType>();
 
 			if (fixity != Hype.Fixity.Prefix && numArguments != 2) throw new Exception("Infix functions can only take 2 arguments.");
 
@@ -25,7 +24,7 @@ namespace Hype
 			{
 				InputSignature.Add(ValueType.GetType("Uncertain"));
 			}
-			OutputSignature.Add(ValueType.GetType("Uncertain"));
+			OutputSignature = ValueType.GetType("Uncertain");
 		}
 
 		/// <summary>
@@ -38,12 +37,10 @@ namespace Hype
 		{
 			foreach (var funcType in new[] { this, other })
 			{
-				foreach (var sig in new[] { funcType.InputSignature, funcType.OutputSignature })
-				{
-					if (sig.Contains(ValueType.GetType("Uncertain"))) return false;
-				}
+				if (funcType.InputSignature.Contains(ValueType.GetType("Uncertain"))) return false;
+				if (funcType.OutputSignature == ValueType.GetType("Uncertain")) return false;
 			}
-			return InputSignature.MemberwiseEquals(other.InputSignature) && OutputSignature.MemberwiseEquals(other.OutputSignature);
+			return InputSignature.MemberwiseEquals(other.InputSignature) && OutputSignature == other.OutputSignature;
 		}
 
 		public MatchType MatchesArguments(List<Value> arguments)
