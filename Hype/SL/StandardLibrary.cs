@@ -19,7 +19,9 @@ namespace Hype.SL
 				.Select(t => new Tuple<object, MethodInfo[]>(t, t.GetType().GetMethods()))
 				.Select(t => t.Item2.Select(m => new Tuple<MethodInfo, object>(m, t.Item1)))
 				.Aggregate((a, m) => a.Concat(m).ToArray())
-				.Where(m => m.Item1.GetCustomAttributes(typeof(FunctionAttributes), false).Length == 1).ToArray();
+				.Where(m => m.Item1.GetCustomAttributes(typeof(FunctionAttributes), false).Length == 1)
+				.OrderBy(m => (m.Item1.GetCustomAttributes(typeof(FunctionAttributes), false)[0] as FunctionAttributes).Priority)
+				.ToArray();
 
 			foreach (var methodPair in methods)
 			{
@@ -45,7 +47,15 @@ namespace Hype.SL
 				}
 				func.Signature.OutputSignature = ValueType.GetType(returnType == typeof(Value) ? "Uncertain" : returnType.Name);
 
-				interpreter.ScopeTreeRoot.AddToScope(attribs.Identifier, func);
+				Value val;
+				if ((val = interpreter.ScopeTreeRoot.Lookup(attribs.Identifier)) is PartialApplication)
+				{
+					interpreter.ScopeTreeRoot.AddToScope(attribs.Identifier, (val as PartialApplication).Merge(func));
+				}
+				else
+				{
+					interpreter.ScopeTreeRoot.AddToScope(attribs.Identifier, func);
+				}
 			}
 		}
 

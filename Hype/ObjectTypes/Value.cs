@@ -11,7 +11,7 @@ namespace Hype
 		/// <summary>
 		/// A changable string that represents the name of the last variable accessed that referenced this Value
 		/// </summary>
-		public Variable Var = new Variable("");
+		public Variable Var = new Variable();
 
 		public ValueType Type { get; set; }
 		public ValueKind Kind { get; set; }
@@ -24,7 +24,7 @@ namespace Hype
 
 		public virtual string Show()
 		{
-			return "Var: " + Var.Name + ", Type: " + Type;
+			return "Var: " + Var.Names[0] + ", Type: " + Type;
 		}
 	}
 }

@@ -41,7 +41,7 @@ namespace Hype
 		private string funcName = "";
 
 		public PartialApplication(Function func)
-			: this(new List<IInvokable>() { func }, func.Fixity, func.Var.Name) { }
+			: this(new List<IInvokable>() { func }, func.Fixity, func.Var.Names[0]) { }
 
 		public PartialApplication(List<IInvokable> matches, Fixity fixity, string name)
 			: this(matches.Select(m => new PartialCall(m)).ToList(), fixity, name) { }
@@ -62,11 +62,6 @@ namespace Hype
 		public Value Apply(Value argument, Side side)
 		{
 			var potentialMatches = PotentialMatches.Clone();
-
-			if (argument is Functional && ((IFunctionGroup)argument).Fixity != Fixity.Prefix)
-			{
-				throw new NonPrefixFunctionAsArgument();
-			}
 
 			for (int i = 0; i < potentialMatches.Count; i++)
 			{
@@ -98,21 +93,34 @@ namespace Hype
 					}
 				}
 			}
-			if (potentialMatches.Count == 0) throw new NoMatchingSignature(SignatureMismatchType.Group);
+			if (potentialMatches.Count == 0)
+			{
+				if (argument is Functional && (argument as Functional).Fixity != Hype.Fixity.Prefix)
+				{
+					//PartialCalls will just report a mismatch if they're passed an infix function and they're not looking
+					//for an Identifier. In case we do have an infix function an all the potential matches returned a mismatch
+					//we finally throw the exception
+					throw new NonPrefixFunctionAsArgument();
+				}
+				else
+				{
+					throw new NoMatchingSignature(SignatureMismatchType.Group);
+				}
+			}
 
-			return new PartialApplication(potentialMatches, Fixity.Prefix, funcName) { Var = new Variable(Var.Name) };
+			return new PartialApplication(potentialMatches, Fixity.Prefix, funcName);
 		}
 
 		public PartialApplication Merge(PartialApplication other)
 		{
-			var appl = new PartialApplication(PotentialMatches.Clone(), Fixity, funcName) { Var = new Variable(Var.Name) };
+			var appl = new PartialApplication(PotentialMatches.Clone(), Fixity, funcName);
 			foreach (var function in other.PotentialMatches) appl.AddFunction(function);
 			return appl;
 		}
 
 		public PartialApplication Merge(IInvokable function)
 		{
-			var appl = new PartialApplication(PotentialMatches.Clone(), Fixity, funcName) { Var = new Variable(Var.Name) };
+			var appl = new PartialApplication(PotentialMatches.Clone(), Fixity, funcName);
 			appl.AddFunction(function);
 			return appl;
 		}
@@ -149,7 +157,7 @@ namespace Hype
 		{
 			get
 			{
-				return new PartialApplication(PotentialMatches.Clone(), Fixity.Prefix, funcName) { Var = new Variable(Var.Name) };
+				return new PartialApplication(PotentialMatches.Clone(), Fixity.Prefix, funcName);
 			}
 		}
 	}

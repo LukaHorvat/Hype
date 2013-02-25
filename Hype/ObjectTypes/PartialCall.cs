@@ -57,6 +57,7 @@ namespace Hype
 		public PartialCall Add(Value argument)
 		{
 			if (CheckArgument(argument) == MatchType.Mismatch) throw new NoMatchingSignature(SignatureMismatchType.Individual);
+			if (Expecting == ValueType.GetType("Identifier")) argument = new Identifier(argument.Var.Names[0]);
 			var call = new PartialCall(argument, this);
 			if (right)
 			{
@@ -70,13 +71,18 @@ namespace Hype
 
 		public PartialCall AddRight(Value argument)
 		{
-			if (CheckArgument(argument) == MatchType.Mismatch) throw new NoMatchingSignature(SignatureMismatchType.Individual);
+			if (CheckArgumentRight(argument) == MatchType.Mismatch) throw new NoMatchingSignature(SignatureMismatchType.Individual);
+			if (Function.Signature.InputSignature.Last() == ValueType.GetType("Identifier")) argument = new Identifier(argument.Var.Names[0]);
 			return new PartialCall(argument, this, true);
 		}
 
 		public MatchType CheckArgument(Value argument)
 		{
-			if (Expecting == ValueType.GetType("Uncertain") || Expecting == argument.Type)
+			//Non prefix functions are only allowed if the function requires an identifier as a parameter
+			if (Expecting != ValueType.GetType("Identifier") && argument is Functional && (argument as Functional).Fixity != Fixity.Prefix) return MatchType.Mismatch;
+			
+			//If the type is Uncertain or Identifier, the argument doesn't need to match it
+			if (Expecting == ValueType.GetType("Uncertain") || argument.Type.IsSubtypeOf(Expecting) || (Expecting == ValueType.GetType("Identifier") && argument.Var.Names.Count != 0))
 			{
 				if (ArgumentsLeft == 1) return MatchType.FullMatch;
 				else return MatchType.PartialMatch;
@@ -87,7 +93,11 @@ namespace Hype
 		public MatchType CheckArgumentRight(Value argument)
 		{
 			if (ArgumentsLeft != 2) throw new RightArgumentPassedToNonInfixFunction();
-			if (Function.Signature.InputSignature.Last() == ValueType.GetType("Uncertain") || Function.Signature.InputSignature.Last() == argument.Type)
+			var last = Function.Signature.InputSignature.Last();
+
+			//See notes in the CheckArgument function
+			if (last != ValueType.GetType("Identifier") && argument is Functional && (argument as Functional).Fixity != Fixity.Prefix) return MatchType.Mismatch;
+			if (last == ValueType.GetType("Uncertain") || argument.Type.IsSubtypeOf(last) || (last == ValueType.GetType("Identifier") && argument.Var.Names.Count != 0))
 			{
 				return MatchType.PartialMatch;
 			}

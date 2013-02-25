@@ -21,6 +21,12 @@ namespace Hype.SL.Global
 			return new Number(a.Num + b.Num);
 		}
 
+		[FunctionAttributes(Hype.Fixity.Infix_6, "+")]
+		public String Add(String a, String b)
+		{
+			return new String(a.Str + b.Str);
+		}
+
 		[FunctionAttributes(Hype.Fixity.Infix_6, "-")]
 		public Number Subtract(Number a, Number b)
 		{
@@ -76,16 +82,9 @@ namespace Hype.SL.Global
 		}
 
 		[FunctionAttributes(Hype.Fixity.Infix_15, "=")]
-		public Value Assign(Value variable, Value obj)
+		public Value Assign(Identifier variable, Value obj)
 		{
-			if (variable.Var.Name != "")
-			{ 
-				Interpreter.CurrentScopeNode.AddToScope(variable.Var.Name, obj);
-			}
-			else
-			{
-				//Could do something interesting
-			}
+			Interpreter.CurrentScopeNode.AddToScope(variable.Str, obj);
 			return obj;
 		}
 	}

@@ -58,6 +58,7 @@
     <Compile Include="ObjectTypes\Functional.cs" />
     <Compile Include="FunctionType.cs" />
     <Compile Include="ObjectTypes\ICurryable.cs" />
+    <Compile Include="ObjectTypes\Identifier.cs" />
     <Compile Include="ObjectTypes\IFunctionGroup.cs" />
     <Compile Include="ObjectTypes\IInvokable.cs" />
     <Compile Include="Interpreter.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="ObjectTypes\BlankIdentifier.cs" />
     <Compile Include="SL\Global\Boolean.cs" />
     <Compile Include="SL\Global\Number.cs" />
+    <Compile Include="SL\Global\String.cs" />
     <Compile Include="SL\StandardLibrary.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="ObjectTypes\Value.cs" />

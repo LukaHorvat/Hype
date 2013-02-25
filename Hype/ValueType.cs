@@ -27,6 +27,7 @@ namespace Hype
 		{
 			var func = GetType("Functional");
 			new[] { "FunctionGroup", "Function" }.ToList().ForEach(s => func.AddSubtype(ValueType.GetType(s)));
+			GetType("String").AddSubtype(GetType("Identifier"));
 		}
 
 		public bool IsSubtypeOf(ValueType type)

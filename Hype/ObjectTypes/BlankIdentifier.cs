@@ -11,12 +11,12 @@ namespace Hype
 		public BlankIdentifier(string name)
 			:base(ValueType.GetType("BlankIdentifier"))
 		{
-			Var.Name = name;
+			Var.Names.Add(name);
 		}
 
 		public override string ToString()
 		{
-			return "BlankIdentifier: " + Var.Name;
+			return "BlankIdentifier: " + Var.Names[0];
 		}
 	}
 }

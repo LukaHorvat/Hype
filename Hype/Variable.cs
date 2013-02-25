@@ -7,16 +7,21 @@ namespace Hype
 {
 	class Variable
 	{
-		public string Name;
+		public List<string> Names;
 
 		public Variable(string name)
 		{
-			Name = name;
+			Names = new List<string>() { name };
+		}
+
+		public Variable()
+		{
+			Names = new List<string>();
 		}
 
 		public override string ToString()
 		{
-			return "\"" + Name + "\"";
+			return "\"" + Names + "\"";
 		}
 	}
 }

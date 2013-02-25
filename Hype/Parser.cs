@@ -27,6 +27,25 @@ namespace Hype
 			 * The spaces are added around those separately
 			 */
 
+			//First, we process strings
+			int start, end, count = 0;
+			string str, id;
+			var lookup = new Dictionary<string, string>();
+			while ((start = source.IndexOf('"')) != -1)
+			{
+				if ((end = source.IndexOf('"', start + 1)) != -1)
+				{
+					str = source.Substring(start, end - start + 1);
+					lookup.Add(id = ("strlookup#" + count), str);
+					source = source.Remove(start, end - start + 1).Insert(start, id);
+					count++;
+				}
+				else
+				{
+					throw new Exception("Mismatched quotes");
+				}
+			}
+
 			var nonSeparated = OpenBrackets.Concat(ClosedBrackets).Concat(SpecialNonSeparatedChars);
 
 			StringBuilder builder = new StringBuilder(source);
@@ -37,7 +56,8 @@ namespace Hype
 				builder.Insert(index, ' ');
 				index += 2;
 			}
-			return builder.ToString().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+			return builder.ToString().Split(new[] { ' ', '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(s => (s.Length > 10 && s.Substring(0, 10) == "strlookup#") ? lookup[s] : s).ToList();
 		}
 
 		public List<Token> Tokenize(List<string> words)
@@ -67,6 +87,10 @@ namespace Hype
 				else if (word == ";")
 				{
 					type = TokenType.Separator;
+				}
+				else if (word[0] == '"')
+				{
+					type = TokenType.Literal;
 				}
 
 				list.Add(new Token(type, word));
