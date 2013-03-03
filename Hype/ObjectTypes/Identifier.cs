@@ -11,7 +11,7 @@ namespace Hype
 		public Identifier(string str)
 			: base(str)
 		{
-			Type = ValueType.GetType("Identifier");
+			Type = ValueType.Identifier;
 		}
 	}
 }

@@ -52,7 +52,7 @@ namespace Hype
 		private void AddToThisScope(string key, Value val)
 		{
 			if (val.Var.Names.Count == 0) val.Var.Names.Add(key);
-			if (val is Function) Values[key] = new PartialApplication(val as Function) { Var = new Variable(key) };
+			if (val.Type <= ValueType.Function) Values[key] = new PartialApplication(val as Function) { Var = new Variable(key) };
 			else Values[key] = val;
 		}
 	}

@@ -9,7 +9,7 @@ namespace Hype
 	class BlankIdentifier : Value
 	{
 		public BlankIdentifier(string name)
-			:base(ValueType.GetType("BlankIdentifier"))
+			:base(ValueType.BlankIdentifier)
 		{
 			Var.Names.Add(name);
 		}

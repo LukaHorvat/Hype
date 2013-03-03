@@ -10,7 +10,7 @@ namespace Hype.SL.Global
 		public string Str;
 
 		public String(string str)
-			: base(ValueType.GetType("String"))
+			: base(ValueType.String)
 		{
 			Str = str;
 		}

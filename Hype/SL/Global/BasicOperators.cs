@@ -21,6 +21,42 @@ namespace Hype.SL.Global
 			return new Number(a.Num + b.Num);
 		}
 
+		[FunctionAttributes(Hype.Fixity.Infix_17, ",", 0)]
+		public Collection Add(Collection a, Collection b)
+		{
+			var col = new Collection(a.InnerList.Count + b.InnerList.Count);
+			a.InnerList.ForEach(v => col.InnerList.Add(v));
+			b.InnerList.ForEach(v => col.InnerList.Add(v));
+			return col;
+		}
+
+		[FunctionAttributes(Hype.Fixity.Infix_17, ",", 1)]
+		public Collection Add(Value a, Collection b)
+		{
+			var col = new Collection(1 + b.InnerList.Count);
+			col.InnerList.Add(a);
+			b.InnerList.ForEach(v => col.InnerList.Add(v));
+			return col;
+		}
+
+		[FunctionAttributes(Hype.Fixity.Infix_17, ",", 1)]
+		public Collection Add(Collection a, Value b)
+		{
+			var col = new Collection(1 + a.InnerList.Count);
+			a.InnerList.ForEach(v => col.InnerList.Add(v));
+			col.InnerList.Add(b);
+			return col;
+		}
+
+		[FunctionAttributes(Hype.Fixity.Infix_17, ",", 2)]
+		public Collection Add(Value a, Value b)
+		{
+			var col = new Collection(2);
+			col.InnerList.Add(a);
+			col.InnerList.Add(b);
+			return col;
+		}
+
 		[FunctionAttributes(Hype.Fixity.Infix_6, "+")]
 		public String Add(String a, String b)
 		{

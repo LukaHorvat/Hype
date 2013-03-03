@@ -73,7 +73,7 @@ namespace Hype
 		public override Fixity Fixity { get { return Signature.Fixity; } set { Signature.Fixity = value; } }
 
 		public Function(Fixity fixity)
-			: base(ValueType.GetType("Function"))
+			: base(ValueType.Function)
 		{
 			if (fixity == 0) throw new Exception("This constructor can only be used for infix functions");
 			Signature = new FunctionType(fixity);
@@ -81,7 +81,7 @@ namespace Hype
 		}
 
 		public Function(Fixity fixity, int numArguments)
-			: base(ValueType.GetType("Function"))
+			: base(ValueType.Function)
 		{
 			if (fixity > 0 && numArguments != 2) throw new Exception("This constructor can only be used for prefix functions");
 			Signature = new FunctionType(fixity, numArguments);

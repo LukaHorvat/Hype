@@ -82,13 +82,19 @@ namespace Hype
 							break;
 						case TokenType.Group:
 							if ((items[i] as Expression).OriginalToken.Content == "{") val = new CodeBlock(items[i] as Expression);
+							else if ((items[i] as Expression).OriginalToken.Content == "[")
+							{
+								var temp = (items[i] as Expression).Execute(interpreter);
+								if (temp.Type <= ValueType.Collection) val = (temp as Collection).ToList();
+								else val = new List(1) { temp };
+							}
 							else val = (items[i] as Expression).Execute(interpreter);
 							break;
 					}
 					if (val != null)
 					{
 						currentExecution.AddLast(val);
-						if (val.Type == ValueType.GetType("FunctionGroup"))
+						if (val.Type == ValueType.FunctionGroup)
 						{
 							var fg = (IFunctionGroup)val;
 							functionList[(int)fg.Fixity].Add(currentExecution.Last);
@@ -171,7 +177,7 @@ namespace Hype
 					}
 					var node = currentExecution.AddAfter(funcNode, res);
 					currentExecution.Remove(funcNode);
-					if (res != func && res.Type.IsSubtypeOf(ValueType.GetType("Functional")) && currentExecution.Count > 1) functionStack.Push(node);
+					if (res != func && res.Type.IsSubtypeOf(ValueType.Functional) && currentExecution.Count > 1) functionStack.Push(node);
 				}
 
 				if (currentExecution.Count > 1)
@@ -179,7 +185,7 @@ namespace Hype
 					if (exceptions.Count > 0) throw exceptions.Dequeue();
 					else throw new MultipleValuesLeft();
 				}
-				if (currentExecution.First.Value.Type == ValueType.GetType("FunctionGroup")
+				if (currentExecution.First.Value.Type == ValueType.FunctionGroup
 					&& ((IFunctionGroup)currentExecution.First.Value).Fixity != Fixity.Prefix) return (Value)(currentExecution.First.Value as ICurryable).PrefixApplication;
 				lastValue = currentExecution.First();
 			}

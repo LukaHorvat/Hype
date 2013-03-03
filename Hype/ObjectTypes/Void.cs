@@ -11,6 +11,6 @@ namespace Hype
 		public static Void Instance = new Void();
 
 		public Void()
-			: base(ValueType.GetType("Void")) { }
+			: base(ValueType.Void) { }
 	}
 }

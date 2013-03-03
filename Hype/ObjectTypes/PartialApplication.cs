@@ -47,7 +47,7 @@ namespace Hype
 			: this(matches.Select(m => new PartialCall(m)).ToList(), fixity, name) { }
 
 		public PartialApplication(List<PartialCall> matches, Fixity fixity, string name)
-			: base(ValueType.GetType("FunctionGroup"))
+			: base(ValueType.FunctionGroup)
 		{
 			if (fixity != Hype.Fixity.Prefix && matches.Any(m => m.ArgumentsLeft != 2))
 			{
@@ -95,7 +95,7 @@ namespace Hype
 			}
 			if (potentialMatches.Count == 0)
 			{
-				if (argument is Functional && (argument as Functional).Fixity != Hype.Fixity.Prefix)
+				if (argument.Type <= ValueType.Functional && (argument as Functional).Fixity != Hype.Fixity.Prefix)
 				{
 					//PartialCalls will just report a mismatch if they're passed an infix function and they're not looking
 					//for an Identifier. In case we do have an infix function an all the potential matches returned a mismatch

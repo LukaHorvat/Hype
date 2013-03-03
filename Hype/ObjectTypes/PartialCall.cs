@@ -21,27 +21,17 @@ namespace Hype
 
 		public ValueType Expecting
 		{
-			get
-			{
-				if (Invokable) return null;
-				int n;
-				var sig = Function.Signature.InputSignature;
-				if (right)
-				{
-					n = 2;
-				}
-				else
-				{
-					n = ArgumentsLeft;
-				}
-				return sig[sig.Count - n];
-			}
+			get;
+			private set;
 		}
+
 
 		public PartialCall(IInvokable function)
 		{
 			Function = function;
 			ArgumentsLeft = function.Signature.InputSignature.Count;
+
+			Expecting = GetExpecting();
 		}
 
 		private PartialCall(Value arg, PartialCall last, bool right = false)
@@ -52,12 +42,24 @@ namespace Hype
 			Argument = arg;
 			this.last = last;
 			this.right = right;
+
+			Expecting = GetExpecting();
+		}
+
+		private ValueType GetExpecting()
+		{
+			if (Invokable) return null;
+			int n;
+			var sig = Function.Signature.InputSignature;
+			if (right) n = 2;
+			else n = ArgumentsLeft;
+			return sig[sig.Count - n];
 		}
 
 		public PartialCall Add(Value argument)
 		{
-			if (CheckArgument(argument) == MatchType.Mismatch) throw new NoMatchingSignature(SignatureMismatchType.Individual);
-			if (Expecting == ValueType.GetType("Identifier")) argument = new Identifier(argument.Var.Names[0]);
+			//if (CheckArgument(argument) == MatchType.Mismatch) throw new NoMatchingSignature(SignatureMismatchType.Individual);
+			if (Expecting == ValueType.Identifier) argument = new Identifier(argument.Var.Names[0]);
 			var call = new PartialCall(argument, this);
 			if (right)
 			{
@@ -71,18 +73,18 @@ namespace Hype
 
 		public PartialCall AddRight(Value argument)
 		{
-			if (CheckArgumentRight(argument) == MatchType.Mismatch) throw new NoMatchingSignature(SignatureMismatchType.Individual);
-			if (Function.Signature.InputSignature.Last() == ValueType.GetType("Identifier")) argument = new Identifier(argument.Var.Names[0]);
+			//if (CheckArgumentRight(argument) == MatchType.Mismatch) throw new NoMatchingSignature(SignatureMismatchType.Individual);
+			if (Function.Signature.InputSignature.Last() == ValueType.Identifier) argument = new Identifier(argument.Var.Names[0]);
 			return new PartialCall(argument, this, true);
 		}
 
 		public MatchType CheckArgument(Value argument)
 		{
 			//Non prefix functions are only allowed if the function requires an identifier as a parameter
-			if (Expecting != ValueType.GetType("Identifier") && argument is Functional && (argument as Functional).Fixity != Fixity.Prefix) return MatchType.Mismatch;
-			
+			if (Expecting != ValueType.Identifier && argument.Type <= ValueType.Functional && ((Functional)argument).Fixity != Fixity.Prefix) return MatchType.Mismatch;
+
 			//If the type is Uncertain or Identifier, the argument doesn't need to match it
-			if (Expecting == ValueType.GetType("Uncertain") || argument.Type.IsSubtypeOf(Expecting) || (Expecting == ValueType.GetType("Identifier") && argument.Var.Names.Count != 0))
+			if (Expecting == ValueType.Uncertain || argument.Type <= Expecting || (Expecting == ValueType.Identifier && argument.Var.Names.Count != 0))
 			{
 				if (ArgumentsLeft == 1) return MatchType.FullMatch;
 				else return MatchType.PartialMatch;
@@ -96,8 +98,8 @@ namespace Hype
 			var last = Function.Signature.InputSignature.Last();
 
 			//See notes in the CheckArgument function
-			if (last != ValueType.GetType("Identifier") && argument is Functional && (argument as Functional).Fixity != Fixity.Prefix) return MatchType.Mismatch;
-			if (last == ValueType.GetType("Uncertain") || argument.Type.IsSubtypeOf(last) || (last == ValueType.GetType("Identifier") && argument.Var.Names.Count != 0))
+			if (last != ValueType.Identifier && argument.Type <= ValueType.Functional && (argument as Functional).Fixity != Fixity.Prefix) return MatchType.Mismatch;
+			if (last == ValueType.Uncertain || argument.Type <= last || (last == ValueType.Identifier && argument.Var.Names.Count != 0))
 			{
 				return MatchType.PartialMatch;
 			}

@@ -10,7 +10,7 @@ namespace Hype.SL.Global
 		public bool Bool;
 
 		public Boolean(bool b)
-			:base(ValueType.GetType("Boolean"))
+			:base(ValueType.Boolean)
 		{
 			Bool = b;
 		}

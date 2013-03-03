@@ -31,8 +31,6 @@ namespace Hype.SL
 				var arguments = method.GetParameters().Select(p => p.ParameterType).ToArray();
 				var returnType = method.ReturnType;
 
-				if (attribs.Priority != 0) throw new NotImplementedException();
-
 				Func<List<Value>, Value> del = delegate(List<Value> args)
 				{
 					return (Value)method.Invoke(obj, args.ToArray());
@@ -42,7 +40,7 @@ namespace Hype.SL
 				func.Signature.InputSignature.Clear();
 				foreach (var type in arguments)
 				{
-					if (type == typeof(Value)) func.Signature.InputSignature.Add(ValueType.GetType("Uncertain"));
+					if (type == typeof(Value)) func.Signature.InputSignature.Add(ValueType.Uncertain);
 					else func.Signature.InputSignature.Add(ValueType.GetType(type.Name));
 				}
 				func.Signature.OutputSignature = ValueType.GetType(returnType == typeof(Value) ? "Uncertain" : returnType.Name);

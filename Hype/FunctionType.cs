@@ -22,9 +22,9 @@ namespace Hype
 
 			for (int i = 0; i < numArguments; ++i)
 			{
-				InputSignature.Add(ValueType.GetType("Uncertain"));
+				InputSignature.Add(ValueType.Uncertain);
 			}
-			OutputSignature = ValueType.GetType("Uncertain");
+			OutputSignature = ValueType.Uncertain;
 		}
 
 		/// <summary>
@@ -37,8 +37,8 @@ namespace Hype
 		{
 			foreach (var funcType in new[] { this, other })
 			{
-				if (funcType.InputSignature.Contains(ValueType.GetType("Uncertain"))) return false;
-				if (funcType.OutputSignature == ValueType.GetType("Uncertain")) return false;
+				if (funcType.InputSignature.Contains(ValueType.Uncertain)) return false;
+				if (funcType.OutputSignature == ValueType.Uncertain) return false;
 			}
 			return InputSignature.MemberwiseEquals(other.InputSignature) && OutputSignature == other.OutputSignature;
 		}
@@ -48,12 +48,12 @@ namespace Hype
 			if (arguments[0] == null)
 			{
 				if (Fixity == Hype.Fixity.Prefix) return MatchType.Mismatch;
-				if (InputSignature[1] == ValueType.GetType("Uncertain") || arguments[1].Type.IsSubtypeOf(InputSignature[1])) return MatchType.PartialMatch;
+				if (InputSignature[1] == ValueType.Uncertain || arguments[1].Type.IsSubtypeOf(InputSignature[1])) return MatchType.PartialMatch;
 				return MatchType.Mismatch;
 			}
 
 			if (arguments.Count > InputSignature.Count) return MatchType.Mismatch;
-			bool matchSoFar = arguments.Select((x, i) => x.Type.IsSubtypeOf(InputSignature[i]) || InputSignature[i] == ValueType.GetType("Uncertain")).All(x => x);
+			bool matchSoFar = arguments.Select((x, i) => x.Type.IsSubtypeOf(InputSignature[i]) || InputSignature[i] == ValueType.Uncertain).All(x => x);
 			if (!matchSoFar) return MatchType.Mismatch;
 			if (arguments.Count == InputSignature.Count && matchSoFar) return MatchType.FullMatch;
 			return MatchType.PartialMatch;

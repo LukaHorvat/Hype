@@ -11,6 +11,24 @@ namespace Hype
 		public ValueType Supertype;
 		public string TypeName;
 
+		//To avoid unnecessary lookups, some build in types are cached (via reflection in the static intializer)
+		public static ValueType BlankIdentifier;
+		public static ValueType CodeBlock;
+		public static ValueType Collection;
+		public static ValueType CSharpFunction;
+		public static ValueType Function;
+		public static ValueType Functional;
+		public static ValueType FunctionGroup;
+		public static ValueType Identifier;
+		public static ValueType List;
+		public static ValueType PartialApplication;
+		public static ValueType Void;
+		public static ValueType String;
+		public static ValueType Number;
+		public static ValueType Boolean;
+		public static ValueType IfFalse;
+		public static ValueType Uncertain;
+
 		protected ValueType(string name)
 		{
 			TypeName = name;
@@ -25,9 +43,16 @@ namespace Hype
 
 		static ValueType()
 		{
-			var func = GetType("Functional");
+			var fields = typeof(ValueType).GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public).Where(f => f.FieldType == typeof(ValueType));
+			foreach (var field in fields)
+			{
+				field.SetValue(null, GetType(field.Name));
+			}
+
+			var func = Functional;
 			new[] { "FunctionGroup", "Function" }.ToList().ForEach(s => func.AddSubtype(ValueType.GetType(s)));
-			GetType("String").AddSubtype(GetType("Identifier"));
+			String.AddSubtype(Identifier);
+			List.AddSubtype(Collection);
 		}
 
 		public bool IsSubtypeOf(ValueType type)
@@ -49,6 +74,16 @@ namespace Hype
 		{
 			Subtypes.Add(type);
 			type.Supertype = this;
+		}
+
+		public static bool operator <=(ValueType a, ValueType b)
+		{
+			return a.IsSubtypeOf(b);
+		}
+
+		public static bool operator >=(ValueType a, ValueType b)
+		{
+			return b.IsSubtypeOf(a);
 		}
 	}
 }

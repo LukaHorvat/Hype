@@ -42,7 +42,7 @@ namespace Hype.SL.Global
 		[FunctionAttributes(Hype.Fixity.Infix_18, "else")]
 		public Value Else(Value previous, CodeBlock block)
 		{
-			if (previous.Type == ValueType.GetType("IfFalse"))
+			if (previous.Type == ValueType.IfFalse)
 			{
 				return block.Execute(Interpreter);
 			}
@@ -52,7 +52,7 @@ namespace Hype.SL.Global
 		[FunctionAttributes(Hype.Fixity.Infix_18, "elseIf")]
 		public Functional ElseIf(Value previous, Boolean condition)
 		{
-			if (previous.Type == ValueType.GetType("IfFalse"))
+			if (previous.Type == ValueType.IfFalse)
 			{
 				if (condition.Bool)
 				{

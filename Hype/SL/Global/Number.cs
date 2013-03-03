@@ -11,7 +11,7 @@ namespace Hype.SL.Global
 		public int Num;
 
 		public Number(int num)
-			: base(ValueType.GetType("Number"))
+			: base(ValueType.Number)
 		{
 			Num = num;
 		}
