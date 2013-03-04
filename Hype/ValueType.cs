@@ -38,7 +38,14 @@ namespace Hype
 
 		public static ValueType GetType(string name)
 		{
-			return types.ContainsKey(name) ? types[name] : types[name] = new ValueType(name);
+			ValueType type;
+			if (!types.TryGetValue(name, out type))
+			{
+				return types[name] = new ValueType(name);
+			}else
+			{
+				return type;
+			}
 		}
 
 		static ValueType()

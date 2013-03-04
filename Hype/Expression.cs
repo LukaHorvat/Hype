@@ -15,11 +15,20 @@ namespace Hype
 		private List<List<LinkedListNode<Value>>> functionList;
 		private Stack<LinkedListNode<Value>> functionStack;
 		private LinkedList<Value> currentExecution;
+		private Queue<FunctionCallException> exceptions;
+
+		private int numFixities;
 
 		public Expression(Token bracketToken)
 			: base(CheckToken(bracketToken))
 		{
 			Sequence = new List<ExpressionItem>();
+			numFixities = Enum.GetNames(typeof(Fixity)).Length;
+			functionList = new List<List<LinkedListNode<Value>>>(numFixities);
+			for (int i = 0; i < numFixities; ++i) functionList.Add(new List<LinkedListNode<Value>>());
+			functionStack = new Stack<LinkedListNode<Value>>();
+			currentExecution = new LinkedList<Value>();
+			exceptions = new Queue<FunctionCallException>();
 		}
 
 		public void ParseNodes()
@@ -57,23 +66,22 @@ namespace Hype
 			if (Nodes.Count == 0) return Void.Instance;
 
 			Value lastValue = null;
+
 			for (var execNode = Nodes[0]; execNode != null; execNode = execNode.Next)
 			{
 				var items = execNode.InnerExpression;
-				int numFixities = Enum.GetNames(typeof(Fixity)).Length;
-				functionList = new List<List<LinkedListNode<Value>>>(numFixities);
-				for (int i = 0; i < numFixities; ++i) functionList.Add(new List<LinkedListNode<Value>>());
+				for (int i = 0; i < numFixities; ++i) functionList[i].Clear();
 
-				functionStack = new Stack<LinkedListNode<Value>>();
-				currentExecution = new LinkedList<Value>();
+				functionStack.Clear();
+				currentExecution.Clear();
 				Value val;
 
-				for (int i = 0; i < items.Count; ++i)
+				if (execNode.Cache == null)
 				{
-					val = null;
-					var tok = items[i].OriginalToken;
-					switch (tok.Type)
+					execNode.Cache = new List<LookupCache>();
+					for (int i = 0; i < items.Count; ++i)
 					{
+<<<<<<< HEAD
 						case TokenType.Literal:
 							currentExecution.AddLast(interpreter.ParseLiteral(tok.Content));
 							break;
@@ -90,7 +98,28 @@ namespace Hype
 							}
 							else val = (items[i] as Expression).Execute(interpreter);
 							break;
+=======
+						var tok = items[i].OriginalToken;
+						switch (tok.Type)
+						{
+							case TokenType.Literal:
+								execNode.Cache.Add(new LookupCache(interpreter.ParseLiteral(tok.Content)));
+								break;
+							case TokenType.Identifier:
+								execNode.Cache.Add(interpreter.CurrentScopeNode.Lookup(tok.Content));
+								break;
+							case TokenType.Group:
+								if ((items[i] as Expression).OriginalToken.Content == "{") execNode.Cache.Add(new LookupCache(new CodeBlock(items[i] as Expression)));
+								else execNode.Cache.Add(new ExpressionCache(items[i] as Expression, interpreter));
+								break;
+						}
+>>>>>>> Attempt at optimizations
 					}
+				}
+
+				for (int i = 0; i < execNode.Cache.Count; ++i)
+				{
+					val = execNode.Cache[i].Cache;
 					if (val != null)
 					{
 						currentExecution.AddLast(val);
@@ -102,7 +131,7 @@ namespace Hype
 					}
 				}
 
-				var exceptions = new Queue<FunctionCallException>();
+				exceptions.Clear();
 
 				for (int j = functionList.Count - 1; j >= 0; --j) for (int k = functionList[j].Count - 1; k >= 0; --k) functionStack.Push(functionList[j][k]);
 				while (functionStack.Count > 0)
@@ -123,6 +152,7 @@ namespace Hype
 						try
 						{
 							res = func.Apply(funcNode.Previous.Value, Side.Left);
+							if (res == SignatureMismatchValue.Instance) continue;
 #if DEBUG
 							interpreter.Log.Add(LogEntry.Applied(funcNode.Previous.Value, func, res));
 							if (interpreter.HeavyDebug) interpreter.Log.Add(LogEntry.State(this.Copy<Expression>()));
@@ -151,6 +181,7 @@ namespace Hype
 							try
 							{
 								res = func.Apply(funcNode.Next.Value, Side.Right);
+								if (res == SignatureMismatchValue.Instance) continue;
 #if DEBUG
 								interpreter.Log.Add(LogEntry.Applied(funcNode.Next.Value, func, res));
 								if (interpreter.HeavyDebug) interpreter.Log.Add(LogEntry.State(this.Copy<Expression>()));
