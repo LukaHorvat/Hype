@@ -19,10 +19,12 @@ namespace Hype
 		public List<ScopeTreeNode> Children;
 		public ScopeTreeNode Parent;
 
+		private Dictionary<string, LookupCache> cacheDictionary;
 		public ScopeTreeNode(ScopeTreeNode parent = null)
 		{
 			Values = new Dictionary<string, Value>();
 			Children = new List<ScopeTreeNode>();
+			cacheDictionary = new Dictionary<string, LookupCache>();
 			Parent = parent;
 		}
 
@@ -32,7 +34,7 @@ namespace Hype
 			scope.AddToThisScope(key, val);
 		}
 
-		public Value Lookup(string key)
+		public Value LookupNoCache(string key)
 		{
 			var scope = SearchScope(key);
 			if (scope != null)
@@ -42,6 +44,22 @@ namespace Hype
 			else return new BlankIdentifier(key);
 		}
 
+		public LookupCache Lookup(string key)
+		{
+			var scope = SearchScope(key);
+			if (scope == this)
+			{
+				if (cacheDictionary.ContainsKey(key)) return cacheDictionary[key];
+				var cache = new LookupCache(scope.Values[key]);
+				cacheDictionary[key] = cache;
+				return cache;
+			}
+			if (scope != null)
+			{
+				return scope.Lookup(key);
+			}
+			else return new LookupCache(new BlankIdentifier(key));
+		}
 		private ScopeTreeNode SearchScope(string key)
 		{
 			if (Values.ContainsKey(key)) return this;
@@ -51,9 +69,15 @@ namespace Hype
 
 		private void AddToThisScope(string key, Value val)
 		{
+			Value temp;
 			if (val.Var.Names.Count == 0) val.Var.Names.Add(key);
-			if (val.Type <= ValueType.Function) Values[key] = new PartialApplication(val as Function) { Var = new Variable(key) };
-			else Values[key] = val;
+
+			if (val is Function) temp = Values[key] = new PartialApplication(val as Function) { Var = new Variable(key) };
+			else temp = Values[key] = val;
+			if (cacheDictionary.ContainsKey(key))
+			{
+				cacheDictionary[key].Cache = temp;
+			}
 		}
 	}
 }

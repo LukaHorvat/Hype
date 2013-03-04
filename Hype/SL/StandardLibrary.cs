@@ -46,7 +46,7 @@ namespace Hype.SL
 				func.Signature.OutputSignature = ValueType.GetType(returnType == typeof(Value) ? "Uncertain" : returnType.Name);
 
 				Value val;
-				if ((val = interpreter.ScopeTreeRoot.Lookup(attribs.Identifier)) is PartialApplication)
+				if ((val = interpreter.ScopeTreeRoot.LookupNoCache(attribs.Identifier)) is PartialApplication)
 				{
 					interpreter.ScopeTreeRoot.AddToScope(attribs.Identifier, (val as PartialApplication).Merge(func));
 				}

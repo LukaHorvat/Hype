@@ -16,7 +16,7 @@ namespace Hype
 
 		public bool Invokable
 		{
-			get { return ArgumentsLeft == 0; }
+			get { return ArgumentsLeft <= 0; }
 		}
 
 		public ValueType Expecting
