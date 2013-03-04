@@ -58,7 +58,7 @@ namespace Hype.SL.Global
 				{
 					//If the previous if was false and the current condition is true,
 					//return the exec function that will execute the following CodeBlock
-					return (Functional)Interpreter.CurrentScopeNode.LookupNoCache("exec");
+					return (Functional)Interpreter.CurrentScopeNode.Lookup("exec");
 				}
 				else
 				{
@@ -70,7 +70,7 @@ namespace Hype.SL.Global
 			else
 			{
 				//If the previous condition was true, just consume the following CodeBlock
-				return (Functional)Interpreter.CurrentScopeNode.LookupNoCache("consume");
+				return (Functional)Interpreter.CurrentScopeNode.Lookup("consume");
 			}
 		}
 

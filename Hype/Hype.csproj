@@ -50,9 +50,7 @@
   <ItemGroup>
     <Compile Include="BuiltInFunctions.cs" />
     <Compile Include="ExecutionNode.cs" />
-    <Compile Include="ExpressionCache.cs" />
     <Compile Include="LogEntry.cs" />
-    <Compile Include="LookupCache.cs" />
     <Compile Include="ObjectTypes\CodeBlock.cs" />
     <Compile Include="ObjectTypes\Collection.cs" />
     <Compile Include="ObjectTypes\CSharpFunction.cs" />
@@ -70,7 +68,6 @@
     <Compile Include="Interpreter.cs" />
     <Compile Include="ObjectTypes\List.cs" />
     <Compile Include="ObjectTypes\PartialCall.cs" />
-    <Compile Include="ObjectTypes\SignatureMismatchValue.cs" />
     <Compile Include="ObjectTypes\TypedObject.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="ObjectTypes\PartialApplication.cs" />

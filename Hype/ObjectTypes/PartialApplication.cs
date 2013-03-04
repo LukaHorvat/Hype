@@ -104,8 +104,7 @@ namespace Hype
 				}
 				else
 				{
-					return SignatureMismatchValue.Instance;
-					//throw new NoMatchingSignature(SignatureMismatchType.Group);
+					throw new NoMatchingSignature(SignatureMismatchType.Group);
 				}
 			}
 
