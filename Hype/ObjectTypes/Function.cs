@@ -69,6 +69,7 @@ namespace Hype
 	class Function : Functional, IInvokable
 	{
 		public FunctionType Signature { get; set; }
+		public ScopeTreeNode ScopeNode;
 
 		public override Fixity Fixity { get { return Signature.Fixity; } set { Signature.Fixity = value; } }
 

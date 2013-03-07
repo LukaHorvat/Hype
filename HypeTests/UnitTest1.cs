@@ -205,5 +205,43 @@ namespace HypeTests
 				Assert.AreEqual("testing function overloads", (interpreter.CurrentScopeNode.LookupNoCache("b") as Hype.SL.Global.String).Str);
 			}
 		}
+
+		[TestMethod]
+		public void Functions()
+		{
+			using (StreamReader reader = new StreamReader(SamplesPath + "functions.hy"))
+			{
+				var parser = new Parser();
+				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);
+
+				var interpreter = new Interpreter(output);
+				interpreter.LoadLibrary(StandardLibrary.Load);
+				interpreter.Run();
+
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Hype.SL.Global.String));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("b"), typeof(Hype.SL.Global.String));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("c"), typeof(Hype.SL.Global.String));
+				Assert.AreEqual("Hello Luka", (interpreter.CurrentScopeNode.LookupNoCache("a") as Hype.SL.Global.String).Str);
+				Assert.AreEqual("Hello FP", (interpreter.CurrentScopeNode.LookupNoCache("b") as Hype.SL.Global.String).Str);
+				Assert.AreEqual("Hello World!", (interpreter.CurrentScopeNode.LookupNoCache("c") as Hype.SL.Global.String).Str);
+			}
+		}
+
+		[TestMethod]
+		public void Functions2()
+		{
+			using (StreamReader reader = new StreamReader(SamplesPath + "functions2.hy"))
+			{
+				var parser = new Parser();
+				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);
+
+				var interpreter = new Interpreter(output);
+				interpreter.LoadLibrary(StandardLibrary.Load);
+				interpreter.Run();
+
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Hype.SL.Global.Number));
+				Assert.AreEqual(35, (interpreter.CurrentScopeNode.LookupNoCache("a") as Hype.SL.Global.Number).Num);
+			}
+		}
 	}
 }

@@ -47,19 +47,24 @@ namespace Hype
 		public LookupCache Lookup(string key)
 		{
 			var scope = SearchScope(key);
-			if (scope == this)
-			{
-				if (cacheDictionary.ContainsKey(key)) return cacheDictionary[key];
-				var cache = new LookupCache(scope.Values[key]);
-				cacheDictionary[key] = cache;
-				return cache;
-			}
 			if (scope != null)
 			{
-				return scope.Lookup(key);
+				return scope.LookupThis(key);
 			}
-			else return new LookupCache(new BlankIdentifier(key));
+			else
+			{
+				return null;
+			}
 		}
+
+		private LookupCache LookupThis(string key)
+		{
+			if (cacheDictionary.ContainsKey(key)) return cacheDictionary[key];
+			var cache = new LookupCache(Values[key]);
+			cacheDictionary[key] = cache;
+			return cache;
+		}
+
 		private ScopeTreeNode SearchScope(string key)
 		{
 			if (Values.ContainsKey(key)) return this;
@@ -78,6 +83,16 @@ namespace Hype
 			{
 				cacheDictionary[key].Cache = temp;
 			}
+			else
+			{
+				cacheDictionary[key] = new LookupCache(temp);
+			}
+		}
+
+		public void GarbageCollect()
+		{
+			Values.Clear();
+			foreach (var cache in cacheDictionary.Values) cache.Cache = null;
 		}
 	}
 }

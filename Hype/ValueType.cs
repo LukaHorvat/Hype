@@ -34,14 +34,14 @@ namespace Hype
 			TypeName = name;
 		}
 
-		static Dictionary<string, ValueType> types = new Dictionary<string,ValueType>(); //To prevent creation of new types when a value is instanced
+		public static Dictionary<string, ValueType> Types = new Dictionary<string,ValueType>(); //To prevent creation of new types when a value is instanced
 
 		public static ValueType GetType(string name)
 		{
 			ValueType type;
-			if (!types.TryGetValue(name, out type))
+			if (!Types.TryGetValue(name, out type))
 			{
-				return types[name] = new ValueType(name);
+				return Types[name] = new ValueType(name);
 			}else
 			{
 				return type;

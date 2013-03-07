@@ -99,5 +99,30 @@ namespace Hype.SL.Global
 			Console.Write(arg.Show());
 			return Void.Instance;
 		}
+
+		[FunctionAttributes(Hype.Fixity.Prefix, "function")]
+		public Function Function(List args, CodeBlock block)
+		{
+			var functionsScope = new ScopeTreeNode(Interpreter.CurrentScopeNode);
+			Func<List<Value>, Value> code = delegate(List<Value> list)
+			{
+				Interpreter.EnterScope(functionsScope);
+				block.Expression.GenerateLookupCache(Interpreter); //Bind the function's CodeBlock to the function's scope.
+				for (int i = 0; i < list.Count; ++i)
+				{
+					var name = args.InnerList[i].Var.Names[0];
+					Interpreter.CurrentScopeNode.AddToScope(name, list[i]);
+				}
+				var ret = block.Execute(Interpreter);
+				Interpreter.ExitScope(true);
+
+				return ret;
+			};
+			var fun = new CSharpFunction(code, Fixity.Prefix, args.InnerList.Count) { ScopeNode = functionsScope };
+			fun.Signature.InputSignature.Clear();
+			args.Select(v => v.Type).ToList().ForEach(t => fun.Signature.InputSignature.Add(t == ValueType.BlankIdentifier ? ValueType.Uncertain : t));
+
+			return fun;
+		}
 	}
 }

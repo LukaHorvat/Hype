@@ -61,10 +61,11 @@ namespace Hype
 		{
 			scopeStack.Push(node);
 		}
-
-		public void ExitScope()
+		
+		public void ExitScope(bool collect = false)
 		{
-			scopeStack.Pop();
+			var scope = scopeStack.Pop();
+			if (collect) scope.GarbageCollect();
 		}
 
 		public Value ParseLiteral(string literal)

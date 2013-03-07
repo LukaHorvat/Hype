@@ -66,7 +66,7 @@ namespace Hype
 			words.RemoveAll(s => s == "");
 
 			var list = new List<Token>();
-			var isNumber = new Regex("[0-9]+");
+			var isNumber = new Regex("^[0-9]+$");
 			var type = TokenType.Identifier;
 			foreach (var word in words)
 			{

@@ -55,6 +55,11 @@ namespace Hype.SL
 					interpreter.ScopeTreeRoot.AddToScope(attribs.Identifier, func);
 				}
 			}
+
+			foreach (var type in ValueType.Types.Values)
+			{
+				interpreter.ScopeTreeRoot.AddToScope(type.TypeName, new CastFunction(type));
+			}
 		}
 
 		public static bool CheckArguments(List<Value> values, params ValueType[] types)

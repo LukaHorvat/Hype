@@ -41,7 +41,7 @@ namespace Hype
 		private string funcName = "";
 
 		public PartialApplication(Function func)
-			: this(new List<IInvokable>() { func }, func.Fixity, func.Var.Names[0]) { }
+			: this(new List<IInvokable>() { func }, func.Fixity, func.Var.Names.Count > 0 ? func.Var.Names[0] : "") { }
 
 		public PartialApplication(List<IInvokable> matches, Fixity fixity, string name)
 			: this(matches.Select(m => new PartialCall(m)).ToList(), fixity, name) { }

@@ -61,46 +61,87 @@ namespace Hype
 			}
 		}
 
+		public void GenerateLookupCache(Interpreter interpreter)
+		{
+			if (Nodes.Count == 0) return;
+
+			for (var execNode = Nodes[0]; execNode != null; execNode = execNode.Next)
+			{
+				GenerateLookupCache(execNode, interpreter);
+			}
+		}
+
+		public void GenerateLookupCache(ExecutionNode node, Interpreter interpreter)
+		{
+			var items = node.InnerExpression;
+
+			if (node.Cache == null) node.Cache = new List<LookupCache>();
+			else node.Cache.Clear(); 
+
+			for (int i = 0; i < items.Count; ++i)
+			{
+				var tok = items[i].OriginalToken;
+				switch (tok.Type)
+				{
+					case TokenType.Literal:
+						node.Cache.Add(new LookupCache(interpreter.ParseLiteral(tok.Content)));
+						break;
+					case TokenType.Identifier:
+						node.Cache.Add(interpreter.CurrentScopeNode.Lookup(tok.Content));
+						break;
+					case TokenType.Group:
+						if ((items[i] as Expression).OriginalToken.Content == "{")
+						{
+							var exp = items[i] as Expression;
+							exp.GenerateLookupCache(interpreter);
+							node.Cache.Add(new LookupCache(new CodeBlock(exp)));
+						}
+						else if ((items[i] as Expression).OriginalToken.Content == "[")
+						{
+							node.Cache.Add(new ListCache(items[i] as Expression, interpreter));
+						}
+						else
+						{
+							node.Cache.Add(new ExpressionCache(items[i] as Expression, interpreter));
+						}
+						break;
+				}
+
+			}
+		}
+
 		public Value Execute(Interpreter interpreter)
 		{
 			if (Nodes.Count == 0) return Void.Instance;
 
 			Value lastValue = null;
+
 			for (var execNode = Nodes[0]; execNode != null; execNode = execNode.Next)
 			{
-				var items = execNode.InnerExpression;
+				if (execNode.Cache == null)
+				{
+					GenerateLookupCache(execNode, interpreter);
+				}
+
 				for (int i = 0; i < numFixities; ++i) functionList[i].Clear();
 
 				functionStack.Clear();
 				currentExecution.Clear();
 
-				if (execNode.Cache == null)
-				{
-					execNode.Cache = new List<LookupCache>();
-					for (int i = 0; i < items.Count; ++i)
-					{
-						var tok = items[i].OriginalToken;
-						switch (tok.Type)
-						{
-							case TokenType.Literal:
-								execNode.Cache.Add(new LookupCache(interpreter.ParseLiteral(tok.Content)));
-								break;
-							case TokenType.Identifier:
-								execNode.Cache.Add(interpreter.CurrentScopeNode.Lookup(tok.Content));
-								break;
-							case TokenType.Group:
-								if ((items[i] as Expression).OriginalToken.Content == "{") execNode.Cache.Add(new LookupCache(new CodeBlock(items[i] as Expression)));
-								else if ((items[i] as Expression).OriginalToken.Content == "[") execNode.Cache.Add(new ListCache(items[i] as Expression, interpreter));
-								else execNode.Cache.Add(new ExpressionCache(items[i] as Expression, interpreter));
-								break;
-						}
-					}
-				}
-
 				Value val;
 				for (int i = 0; i < execNode.Cache.Count; ++i)
 				{
-					val = execNode.Cache[i].Cache;
+					//If the last lookup didn't find the identifier, the cache will be null. If it's still null after another lookup,
+					//set the value to a blank identifier.
+					execNode.Cache[i] = execNode.Cache[i] ?? interpreter.CurrentScopeNode.Lookup(execNode.InnerExpression[i].OriginalToken.Content);
+					if (execNode.Cache[i] == null)
+					{
+						val = new BlankIdentifier(execNode.InnerExpression[i].OriginalToken.Content);
+					}
+					else
+					{
+						val = execNode.Cache[i].Cache;
+					}
 					if (val != null)
 					{
 						currentExecution.AddLast(val);
@@ -114,6 +155,7 @@ namespace Hype
 				exceptions.Clear();
 
 				for (int j = functionList.Count - 1; j >= 0; --j) for (int k = functionList[j].Count - 1; k >= 0; --k) functionStack.Push(functionList[j][k]);
+				if (true) { }
 				while (functionStack.Count > 0)
 				{
 					var funcNode = functionStack.Pop();
