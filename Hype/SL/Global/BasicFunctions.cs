@@ -103,7 +103,7 @@ namespace Hype.SL.Global
 		[FunctionAttributes(Hype.Fixity.Prefix, "function")]
 		public Function Function(List args, CodeBlock block)
 		{
-			var functionsScope = new ScopeTreeNode(Interpreter.CurrentScopeNode);
+			var functionsScope = new ScopeTreeNode(Permanency.NonPermanent, Interpreter.CurrentScopeNode);
 			Func<List<Value>, Value> code = delegate(List<Value> list)
 			{
 				Interpreter.EnterScope(functionsScope);
@@ -118,7 +118,7 @@ namespace Hype.SL.Global
 
 				return ret;
 			};
-			var fun = new CSharpFunction(code, Fixity.Prefix, args.InnerList.Count) { ScopeNode = functionsScope };
+			var fun = new CSharpFunction(code, Fixity.Prefix, args.InnerList.Count) { FunctionScope = functionsScope };
 			fun.Signature.InputSignature.Clear();
 			args.Select(v => v.Type).ToList().ForEach(t => fun.Signature.InputSignature.Add(t == ValueType.BlankIdentifier ? ValueType.Uncertain : t));
 

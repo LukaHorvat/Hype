@@ -32,7 +32,7 @@ namespace Hype
 		public Interpreter(Expression expression)
 		{
 			scopeStack = new Stack<ScopeTreeNode>();
-			ScopeTreeRoot = new ScopeTreeNode();
+			ScopeTreeRoot = new ScopeTreeNode(Permanency.Permanent);
 			RootExpression = expression;
 			Log = new List<LogEntry>();
 		}
@@ -61,7 +61,7 @@ namespace Hype
 		{
 			scopeStack.Push(node);
 		}
-		
+
 		public void ExitScope(bool collect = false)
 		{
 			var scope = scopeStack.Pop();

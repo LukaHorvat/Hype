@@ -13,19 +13,28 @@ namespace Hype
 		Nothing
 	}
 
+	enum Permanency
+	{
+		Permanent,
+		NonPermanent
+	}
+
 	class ScopeTreeNode
 	{
 		public Dictionary<string, Value> Values;
 		public List<ScopeTreeNode> Children;
 		public ScopeTreeNode Parent;
 
+		private Permanency perm;
+
 		private Dictionary<string, LookupCache> cacheDictionary;
-		public ScopeTreeNode(ScopeTreeNode parent = null)
+		public ScopeTreeNode(Permanency perm, ScopeTreeNode parent = null)
 		{
 			Values = new Dictionary<string, Value>();
 			Children = new List<ScopeTreeNode>();
 			cacheDictionary = new Dictionary<string, LookupCache>();
 			Parent = parent;
+			this.perm = perm;
 		}
 
 		public void AddToScope(string key, Value val)
@@ -46,13 +55,23 @@ namespace Hype
 
 		public LookupCache Lookup(string key)
 		{
-			var scope = SearchScope(key);
-			if (scope != null)
+			if (key.IndexOf('.') != -1)
 			{
-				return scope.LookupThis(key);
+				var parts = key.Split('.');
+				var scope = this;
+				foreach (var part in parts)
+				{
+					var cache = Lookup(part);
+					if (cache != null)
+				}
 			}
 			else
 			{
+				var scope = SearchScope(key);
+				if (scope != null)
+				{
+					return scope.LookupThis(key);
+				}
 				return null;
 			}
 		}

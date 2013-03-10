@@ -16,10 +16,13 @@ namespace Hype
 		public ValueType Type { get; set; }
 		public ValueKind Kind { get; set; }
 
+		public ScopeTreeNode ScopeNode;
+
 		public Value(ValueType type)
 		{
 			Type = type;
 			Kind = ValueKind.Object;
+			ScopeNode = new ScopeTreeNode(Permanency.Permanent);
 		}
 
 		public virtual string Show()

@@ -72,6 +72,7 @@
     <Compile Include="Interpreter.cs" />
     <Compile Include="ObjectTypes\List.cs" />
     <Compile Include="ObjectTypes\PartialCall.cs" />
+    <Compile Include="ObjectTypes\ProxyValue.cs" />
     <Compile Include="ObjectTypes\SignatureMismatchValue.cs" />
     <Compile Include="ObjectTypes\TypedObject.cs" />
     <Compile Include="Parser.cs" />

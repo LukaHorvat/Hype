@@ -28,6 +28,7 @@ namespace Hype
 		public static ValueType Boolean;
 		public static ValueType IfFalse;
 		public static ValueType Uncertain;
+		public static ValueType ProxyValue;
 
 		protected ValueType(string name)
 		{
