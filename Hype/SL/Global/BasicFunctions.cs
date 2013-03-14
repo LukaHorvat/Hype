@@ -58,7 +58,7 @@ namespace Hype.SL.Global
 				{
 					//If the previous if was false and the current condition is true,
 					//return the exec function that will execute the following CodeBlock
-					return (Functional)Interpreter.CurrentScopeNode.LookupNoCache("exec");
+					return (Functional)Interpreter.CurrentScopeNode.LookupNoRef("exec");
 				}
 				else
 				{
@@ -70,7 +70,7 @@ namespace Hype.SL.Global
 			else
 			{
 				//If the previous condition was true, just consume the following CodeBlock
-				return (Functional)Interpreter.CurrentScopeNode.LookupNoCache("consume");
+				return (Functional)Interpreter.CurrentScopeNode.LookupNoRef("consume");
 			}
 		}
 
@@ -107,7 +107,7 @@ namespace Hype.SL.Global
 			Func<List<Value>, Value> code = delegate(List<Value> list)
 			{
 				Interpreter.EnterScope(functionsScope);
-				block.Expression.GenerateLookupCache(Interpreter); //Bind the function's CodeBlock to the function's scope.
+				//block.Expression.GenerateLookupCache(Interpreter); //Bind the function's CodeBlock to the function's scope.
 				for (int i = 0; i < list.Count; ++i)
 				{
 					var name = args.InnerList[i].Var.Names[0];

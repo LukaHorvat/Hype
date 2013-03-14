@@ -9,7 +9,8 @@ namespace Hype
 	{
 		public ExecutionNode Next;
 		public List<ExpressionItem> InnerExpression;
-		public List<LookupCache> Cache;
+		public List<Reference> Cache;
+
 		public ExecutionNode(List<ExpressionItem> innerExpression, ExecutionNode next)
 		{
 			Next = next;

@@ -21,18 +21,22 @@ namespace Hype
 
 	class ScopeTreeNode
 	{
-		public Dictionary<string, Value> Values;
 		public List<ScopeTreeNode> Children;
 		public ScopeTreeNode Parent;
 
+		/// <summary>
+		/// If the node isn't expandable it means that any attempt to create a new reference on it will be passed to it's parent.
+		/// </summary>
+		public bool Expandable = true;
+
 		private Permanency perm;
 
-		private Dictionary<string, LookupCache> cacheDictionary;
+		private Dictionary<string, Reference> references;
+
 		public ScopeTreeNode(Permanency perm, ScopeTreeNode parent = null)
 		{
-			Values = new Dictionary<string, Value>();
 			Children = new List<ScopeTreeNode>();
-			cacheDictionary = new Dictionary<string, LookupCache>();
+			references = new Dictionary<string, Reference>();
 			Parent = parent;
 			this.perm = perm;
 		}
@@ -43,27 +47,35 @@ namespace Hype
 			scope.AddToThisScope(key, val);
 		}
 
-		public Value LookupNoCache(string key)
+		public Value LookupNoRef(string key)
 		{
 			var scope = SearchScope(key);
 			if (scope != null)
 			{
-				return scope.Values[key];
+				return scope.references[key].RefValue;
 			}
 			else return new BlankIdentifier(key);
 		}
 
-		public LookupCache Lookup(string key)
+		public Reference Lookup(string key)
 		{
 			if (key.IndexOf('.') != -1)
 			{
 				var parts = key.Split('.');
 				var scope = this;
-				foreach (var part in parts)
+				int i = 0;
+				Reference r = null;
+				while (i < parts.Length)
 				{
-					var cache = Lookup(part);
-					if (cache != null)
+					r = scope.Lookup(parts[i]);
+					if (r == null && parts.Length >= i)
+					{
+						throw new ExpressionException("Tried to access a field of a null reference");
+					}
+					scope = r.RefValue.ScopeNode;
+					++i;
 				}
+				return r;
 			}
 			else
 			{
@@ -76,42 +88,44 @@ namespace Hype
 			}
 		}
 
-		private LookupCache LookupThis(string key)
+		/// <summary>
+		/// Only called when this scope surely contains the key.
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		private Reference LookupThis(string key)
 		{
-			if (cacheDictionary.ContainsKey(key)) return cacheDictionary[key];
-			var cache = new LookupCache(Values[key]);
-			cacheDictionary[key] = cache;
-			return cache;
+			return references[key];
 		}
 
 		private ScopeTreeNode SearchScope(string key)
 		{
-			if (Values.ContainsKey(key)) return this;
+			if (references.ContainsKey(key)) return this;
 			else if (Parent != null) return Parent.SearchScope(key);
 			else return null;
 		}
 
 		private void AddToThisScope(string key, Value val)
 		{
-			Value temp;
+			bool contains = references.ContainsKey(key);
+			if (!contains && !Expandable)
+			{
+				if (Parent == null) throw new ExpressionException("Unexpandable scope has no parent scope and is trying to add a new reference");
+				Parent.AddToThisScope(key, val);
+				return;
+			}
+
 			if (val.Var.Names.Count == 0) val.Var.Names.Add(key);
 
-			if (val is Function) temp = Values[key] = new PartialApplication(val as Function) { Var = new Variable(key) };
-			else temp = Values[key] = val;
-			if (cacheDictionary.ContainsKey(key))
-			{
-				cacheDictionary[key].Cache = temp;
-			}
-			else
-			{
-				cacheDictionary[key] = new LookupCache(temp);
-			}
+			if (!contains) references[key] = new Reference(null);
+			var refer = references[key];
+			if (val is Function) refer.RefValue = new PartialApplication(val as Function) { Var = new Variable(key) };
+			else refer.RefValue = val;
 		}
 
 		public void GarbageCollect()
 		{
-			Values.Clear();
-			foreach (var cache in cacheDictionary.Values) cache.Cache = null;
+			references.Clear();
 		}
 	}
 }

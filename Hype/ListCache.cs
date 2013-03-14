@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Hype
 {
-	class ListCache : LookupCache
+	class ListCache : Reference
 	{
 		private Expression exp;
 		private Interpreter interpreter;
 
-		public override Value Cache
+		public override Value RefValue
 		{
 			get
 			{

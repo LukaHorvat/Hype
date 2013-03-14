@@ -24,8 +24,8 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Number));
-				Assert.AreEqual(5, (interpreter.CurrentScopeNode.LookupNoCache("a") as Number).Num);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("a"), typeof(Number));
+				Assert.AreEqual(5, (interpreter.CurrentScopeNode.LookupNoRef("a") as Number).Num);
 			}
 		}
 
@@ -41,10 +41,10 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Number));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("b"), typeof(Number));
-				Assert.AreEqual(25, (interpreter.CurrentScopeNode.LookupNoCache("a") as Number).Num);
-				Assert.AreEqual(5, (interpreter.CurrentScopeNode.LookupNoCache("b") as Number).Num);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("a"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("b"), typeof(Number));
+				Assert.AreEqual(25, (interpreter.CurrentScopeNode.LookupNoRef("a") as Number).Num);
+				Assert.AreEqual(5, (interpreter.CurrentScopeNode.LookupNoRef("b") as Number).Num);
 			}
 		}
 
@@ -60,10 +60,10 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Number));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("b"), typeof(Number));
-				Assert.AreEqual(4, (interpreter.CurrentScopeNode.LookupNoCache("a") as Number).Num);
-				Assert.AreEqual(1, (interpreter.CurrentScopeNode.LookupNoCache("b") as Number).Num);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("a"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("b"), typeof(Number));
+				Assert.AreEqual(4, (interpreter.CurrentScopeNode.LookupNoRef("a") as Number).Num);
+				Assert.AreEqual(1, (interpreter.CurrentScopeNode.LookupNoRef("b") as Number).Num);
 			}
 		}
 
@@ -79,12 +79,12 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("b"), typeof(Number));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("c"), typeof(Number));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("d"), typeof(Number));
-				Assert.AreEqual(5, (interpreter.CurrentScopeNode.LookupNoCache("b") as Number).Num);
-				Assert.AreEqual(10, (interpreter.CurrentScopeNode.LookupNoCache("c") as Number).Num);
-				Assert.AreEqual(5, (interpreter.CurrentScopeNode.LookupNoCache("d") as Number).Num);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("b"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("c"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("d"), typeof(Number));
+				Assert.AreEqual(5, (interpreter.CurrentScopeNode.LookupNoRef("b") as Number).Num);
+				Assert.AreEqual(10, (interpreter.CurrentScopeNode.LookupNoRef("c") as Number).Num);
+				Assert.AreEqual(5, (interpreter.CurrentScopeNode.LookupNoRef("d") as Number).Num);
 			}
 		}
 
@@ -100,14 +100,14 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Hype.SL.Global.Boolean));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("b"), typeof(Number));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("c"), typeof(Hype.SL.Global.Boolean));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("d"), typeof(Hype.SL.Global.Boolean));
-				Assert.AreEqual(false, (interpreter.CurrentScopeNode.LookupNoCache("a") as Hype.SL.Global.Boolean).Bool);
-				Assert.AreEqual(6, (interpreter.CurrentScopeNode.LookupNoCache("b") as Number).Num);
-				Assert.AreEqual(true, (interpreter.CurrentScopeNode.LookupNoCache("c") as Hype.SL.Global.Boolean).Bool);
-				Assert.AreEqual(true, (interpreter.CurrentScopeNode.LookupNoCache("d") as Hype.SL.Global.Boolean).Bool);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("a"), typeof(Hype.SL.Global.Boolean));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("b"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("c"), typeof(Hype.SL.Global.Boolean));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("d"), typeof(Hype.SL.Global.Boolean));
+				Assert.AreEqual(false, (interpreter.CurrentScopeNode.LookupNoRef("a") as Hype.SL.Global.Boolean).Bool);
+				Assert.AreEqual(6, (interpreter.CurrentScopeNode.LookupNoRef("b") as Number).Num);
+				Assert.AreEqual(true, (interpreter.CurrentScopeNode.LookupNoRef("c") as Hype.SL.Global.Boolean).Bool);
+				Assert.AreEqual(true, (interpreter.CurrentScopeNode.LookupNoRef("d") as Hype.SL.Global.Boolean).Bool);
 			}
 		}
 
@@ -123,10 +123,10 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Number));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("i"), typeof(Number));
-				Assert.AreEqual(2147483647, (interpreter.CurrentScopeNode.LookupNoCache("a") as Number).Num);
-				Assert.AreEqual(31, (interpreter.CurrentScopeNode.LookupNoCache("i") as Number).Num);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("a"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("i"), typeof(Number));
+				Assert.AreEqual(2147483647, (interpreter.CurrentScopeNode.LookupNoRef("a") as Number).Num);
+				Assert.AreEqual(31, (interpreter.CurrentScopeNode.LookupNoRef("i") as Number).Num);
 			}
 		}
 
@@ -142,12 +142,12 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Number));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("b"), typeof(Number));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("c"), typeof(Number));
-				Assert.AreEqual(3, (interpreter.CurrentScopeNode.LookupNoCache("a") as Number).Num);
-				Assert.AreEqual(4, (interpreter.CurrentScopeNode.LookupNoCache("b") as Number).Num);
-				Assert.AreEqual(3, (interpreter.CurrentScopeNode.LookupNoCache("c") as Number).Num);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("a"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("b"), typeof(Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("c"), typeof(Number));
+				Assert.AreEqual(3, (interpreter.CurrentScopeNode.LookupNoRef("a") as Number).Num);
+				Assert.AreEqual(4, (interpreter.CurrentScopeNode.LookupNoRef("b") as Number).Num);
+				Assert.AreEqual(3, (interpreter.CurrentScopeNode.LookupNoRef("c") as Number).Num);
 			}
 		}
 
@@ -163,8 +163,8 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("acc"), typeof(Number));
-				Assert.AreEqual(2004310016, (interpreter.CurrentScopeNode.LookupNoCache("acc") as Number).Num);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("acc"), typeof(Number));
+				Assert.AreEqual(2004310016, (interpreter.CurrentScopeNode.LookupNoRef("acc") as Number).Num);
 			}
 		}
 
@@ -180,10 +180,10 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Hype.SL.Global.String));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("b"), typeof(Hype.SL.Global.String));
-				Assert.AreEqual("testing", (interpreter.CurrentScopeNode.LookupNoCache("a") as Hype.SL.Global.String).Str);
-				Assert.AreEqual("strings", (interpreter.CurrentScopeNode.LookupNoCache("b") as Hype.SL.Global.String).Str);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("a"), typeof(Hype.SL.Global.String));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("b"), typeof(Hype.SL.Global.String));
+				Assert.AreEqual("testing", (interpreter.CurrentScopeNode.LookupNoRef("a") as Hype.SL.Global.String).Str);
+				Assert.AreEqual("strings", (interpreter.CurrentScopeNode.LookupNoRef("b") as Hype.SL.Global.String).Str);
 			}
 		}
 
@@ -199,10 +199,10 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Hype.SL.Global.Number));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("b"), typeof(Hype.SL.Global.String));
-				Assert.AreEqual(5, (interpreter.CurrentScopeNode.LookupNoCache("a") as Hype.SL.Global.Number).Num);
-				Assert.AreEqual("testing function overloads", (interpreter.CurrentScopeNode.LookupNoCache("b") as Hype.SL.Global.String).Str);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("a"), typeof(Hype.SL.Global.Number));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("b"), typeof(Hype.SL.Global.String));
+				Assert.AreEqual(5, (interpreter.CurrentScopeNode.LookupNoRef("a") as Hype.SL.Global.Number).Num);
+				Assert.AreEqual("testing function overloads", (interpreter.CurrentScopeNode.LookupNoRef("b") as Hype.SL.Global.String).Str);
 			}
 		}
 
@@ -218,12 +218,12 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Hype.SL.Global.String));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("b"), typeof(Hype.SL.Global.String));
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("c"), typeof(Hype.SL.Global.String));
-				Assert.AreEqual("Hello Luka", (interpreter.CurrentScopeNode.LookupNoCache("a") as Hype.SL.Global.String).Str);
-				Assert.AreEqual("Hello FP", (interpreter.CurrentScopeNode.LookupNoCache("b") as Hype.SL.Global.String).Str);
-				Assert.AreEqual("Hello World!", (interpreter.CurrentScopeNode.LookupNoCache("c") as Hype.SL.Global.String).Str);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("a"), typeof(Hype.SL.Global.String));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("b"), typeof(Hype.SL.Global.String));
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("c"), typeof(Hype.SL.Global.String));
+				Assert.AreEqual("Hello Luka", (interpreter.CurrentScopeNode.LookupNoRef("a") as Hype.SL.Global.String).Str);
+				Assert.AreEqual("Hello FP", (interpreter.CurrentScopeNode.LookupNoRef("b") as Hype.SL.Global.String).Str);
+				Assert.AreEqual("Hello World!", (interpreter.CurrentScopeNode.LookupNoRef("c") as Hype.SL.Global.String).Str);
 			}
 		}
 
@@ -239,8 +239,8 @@ namespace HypeTests
 				interpreter.LoadLibrary(StandardLibrary.Load);
 				interpreter.Run();
 
-				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoCache("a"), typeof(Hype.SL.Global.Number));
-				Assert.AreEqual(35, (interpreter.CurrentScopeNode.LookupNoCache("a") as Hype.SL.Global.Number).Num);
+				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("a"), typeof(Hype.SL.Global.Number));
+				Assert.AreEqual(35, (interpreter.CurrentScopeNode.LookupNoRef("a") as Hype.SL.Global.Number).Num);
 			}
 		}
 	}

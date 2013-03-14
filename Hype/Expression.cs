@@ -75,39 +75,61 @@ namespace Hype
 		{
 			var items = node.InnerExpression;
 
-			if (node.Cache == null) node.Cache = new List<LookupCache>();
-			else node.Cache.Clear(); 
+			if (node.Cache == null)
+			{
+				node.Cache = new List<Reference>();
+				for (int i = 0; i < items.Count; ++i) node.Cache.Add(null);
+			}
 
 			for (int i = 0; i < items.Count; ++i)
 			{
+				//Fixed references aren't meant to be modified.
+				if (node.Cache[i] is FixedReference) continue;
+
 				var tok = items[i].OriginalToken;
 				switch (tok.Type)
 				{
 					case TokenType.Literal:
-						node.Cache.Add(new LookupCache(interpreter.ParseLiteral(tok.Content)));
+						node.Cache[i] = new Reference(interpreter.ParseLiteral(tok.Content));
 						break;
 					case TokenType.Identifier:
-						node.Cache.Add(interpreter.CurrentScopeNode.Lookup(tok.Content));
+						node.Cache[i] = interpreter.CurrentScopeNode.Lookup(tok.Content);
 						break;
 					case TokenType.Group:
-						if ((items[i] as Expression).OriginalToken.Content == "{")
+						var exp = items[i] as Expression;
+						exp.GenerateLookupCache(interpreter);
+						exp.FixAllReferences();
+						if (exp.OriginalToken.Content == "{")
 						{
-							var exp = items[i] as Expression;
-							exp.GenerateLookupCache(interpreter);
-							node.Cache.Add(new LookupCache(new CodeBlock(exp)));
+							var codeblock = new CodeBlock(exp);
+							node.Cache[i] = new Reference(codeblock);
 						}
-						else if ((items[i] as Expression).OriginalToken.Content == "[")
+						else if (exp.OriginalToken.Content == "[")
 						{
-							node.Cache.Add(new ListCache(items[i] as Expression, interpreter));
+							node.Cache[i] = new ListCache(exp, interpreter);
 						}
 						else
 						{
-							node.Cache.Add(new ExpressionCache(items[i] as Expression, interpreter));
+							node.Cache[i] = new ExpressionCache(exp, interpreter);
 						}
 						break;
 				}
 
 			}
+		}
+
+		/// <summary>
+		/// Makes all references in the cache fixed.
+		/// </summary>
+		public void FixAllReferences()
+		{
+			Nodes.ForEach(
+				node =>
+					node.Cache = node.Cache.Select<Reference, Reference>(
+						r =>
+							r != null ? new FixedReference(r) : null
+						).ToList()
+			);
 		}
 
 		public Value Execute(Interpreter interpreter)
@@ -140,7 +162,7 @@ namespace Hype
 					}
 					else
 					{
-						val = execNode.Cache[i].Cache;
+						val = execNode.Cache[i].RefValue;
 					}
 					if (val != null)
 					{

@@ -49,11 +49,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuiltInFunctions.cs" />
+    <Compile Include="FixedReference.cs" />
     <Compile Include="ListCache.cs" />
     <Compile Include="ExecutionNode.cs" />
     <Compile Include="ExpressionCache.cs" />
     <Compile Include="LogEntry.cs" />
-    <Compile Include="LookupCache.cs" />
+    <Compile Include="Reference.cs" />
     <Compile Include="ObjectTypes\CastFunction.cs" />
     <Compile Include="ObjectTypes\CodeBlock.cs" />
     <Compile Include="ObjectTypes\Collection.cs" />

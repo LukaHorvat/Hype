@@ -10,7 +10,7 @@ namespace Hype
 		public Expression Expression;
 
 		public CodeBlock(Expression expression)
-			:base(ValueType.CodeBlock)
+			: base(ValueType.CodeBlock)
 		{
 			Expression = expression;
 		}
