@@ -120,7 +120,18 @@ namespace Hype.SL.Global
 		[FunctionAttributes(Hype.Fixity.Infix_15, "=")]
 		public Value Assign(Identifier variable, Value obj)
 		{
-			Interpreter.CurrentScopeNode.AddToScope(variable.Str, obj);
+			var str = variable.Str;
+			if (str.IndexOf('.') != -1)
+			{
+				int lastIndex = str.LastIndexOf('.');
+				var r = Interpreter.CurrentScopeNode.Lookup(str.Substring(0, str.Length - lastIndex - 1));
+				if (r == null) throw new ExpressionException("Tried to access a field of a null reference");
+				r.RefValue.ScopeNode.AddToScope(str.Substring(lastIndex + 1), obj);
+			}
+			else
+			{
+				Interpreter.CurrentScopeNode.AddToScope(variable.Str, obj);
+			}
 			return obj;
 		}
 	}

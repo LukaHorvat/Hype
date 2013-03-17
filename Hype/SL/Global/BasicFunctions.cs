@@ -124,5 +124,21 @@ namespace Hype.SL.Global
 
 			return fun;
 		}
+
+		[FunctionAttributes(Hype.Fixity.Prefix, "type")]
+		public UserType Type(CodeBlock block)
+		{
+			return new UserType(block);
+		}
+
+		[FunctionAttributes(Hype.Fixity.Prefix, "new")]
+		public Value New(UserType type)
+		{
+			var obj = new TypedObject(type.Var.Names[0]);
+			Interpreter.EnterScope(obj.ScopeNode);
+			type.PropertyBlock.Execute(Interpreter);
+			Interpreter.ExitScope();
+			return obj;
+		}
 	}
 }

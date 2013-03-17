@@ -49,11 +49,8 @@ namespace Hype
 
 		public Value LookupNoRef(string key)
 		{
-			var scope = SearchScope(key);
-			if (scope != null)
-			{
-				return scope.references[key].RefValue;
-			}
+			var r = Lookup(key);
+			if (r != null) return r.RefValue;
 			else return new BlankIdentifier(key);
 		}
 

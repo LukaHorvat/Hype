@@ -11,7 +11,7 @@ namespace Hype
 	{
 		public List<char> OpenBrackets = new List<char>() { '(', '{', '[', };
 		public List<char> ClosedBrackets = new List<char>() { ')', '}', ']' };
-		public List<char> SpecialNonSeparatedChars = new List<char>() { '.', ';', ',' };
+		public List<char> SpecialNonSeparatedChars = new List<char>() { ';', ',' };
 
 		private List<char> brackets;
 
