@@ -23,11 +23,25 @@ namespace Hype
 			Type = type;
 			Kind = ValueKind.Object;
 			ScopeNode = new ScopeTreeNode(Permanency.Permanent);
+
+			if (!(Type <= ValueType.Functional))
+			{
+				var method = new CSharpFunction(
+					l =>
+					{
+						var fun = l[0] as Function;
+						fun.FunctionScope.Parent = ScopeNode;
+						ScopeNode.AddToScope(fun.Var.LastName, fun);
+						return Void.Instance;
+					}, Fixity.Prefix, 1);
+				method.Signature.InputSignature[0] = ValueType.Function;
+				ScopeNode.AddToScope("method", method);
+			}
 		}
 
 		public virtual string Show()
 		{
-			return "Var: " + Var.Names[0] + ", Type: " + Type;
+			return "Var: " + Var.OriginalName + ", Type: " + Type;
 		}
 	}
 }

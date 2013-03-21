@@ -4,6 +4,7 @@ using System.IO;
 using Hype.SL.Global;
 using Hype.SL;
 using Hype;
+using System.Text;
 
 namespace HypeTests
 {
@@ -241,6 +242,34 @@ namespace HypeTests
 
 				Assert.IsInstanceOfType(interpreter.CurrentScopeNode.LookupNoRef("a"), typeof(Hype.SL.Global.Number));
 				Assert.AreEqual(35, (interpreter.CurrentScopeNode.LookupNoRef("a") as Hype.SL.Global.Number).Num);
+			}
+		}
+
+		[TestMethod]
+		public void Scopes()
+		{
+			using (StreamReader reader = new StreamReader(SamplesPath + "scopes.hy"))
+			{
+				var parser = new Parser();
+				var output = parser.BuildExpressionTree(parser.Tokenize(parser.Split(reader.ReadToEnd())), 0);
+
+				var interpreter = new Interpreter(output);
+				interpreter.LoadLibrary(StandardLibrary.Load);
+
+				var writter = new StringWriter();
+				var temp = Console.Out;
+				Console.SetOut(writter);
+				interpreter.Run();
+				Console.SetOut(temp);
+
+				var str = writter.ToString();
+				Assert.AreEqual(@"0
+1
+2
+3
+4
+Var: i, Type: BlankIdentifier
+", str);
 			}
 		}
 	}

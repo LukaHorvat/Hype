@@ -59,7 +59,7 @@ namespace Hype
 		public PartialCall Add(Value argument)
 		{
 			//if (CheckArgument(argument) == MatchType.Mismatch) throw new NoMatchingSignature(SignatureMismatchType.Individual);
-			if (Expecting == ValueType.Identifier) argument = new Identifier(argument.Var.Names[0]);
+			if (Expecting == ValueType.Identifier) argument = new Identifier(argument.Var.LastName);
 			var call = new PartialCall(argument, this);
 			if (right)
 			{
@@ -74,17 +74,17 @@ namespace Hype
 		public PartialCall AddRight(Value argument)
 		{
 			//if (CheckArgumentRight(argument) == MatchType.Mismatch) throw new NoMatchingSignature(SignatureMismatchType.Individual);
-			if (Function.Signature.InputSignature.Last() == ValueType.Identifier) argument = new Identifier(argument.Var.Names[0]);
+			if (Function.Signature.InputSignature.Last() == ValueType.Identifier) argument = new Identifier(argument.Var.LastName);
 			return new PartialCall(argument, this, true);
 		}
 
 		public MatchType CheckArgument(Value argument)
 		{
 			//Non prefix functions are only allowed if the function requires an identifier as a parameter
-			if (Expecting != ValueType.Identifier && argument.Type <= ValueType.Functional && ((Functional)argument).Fixity != Fixity.Prefix) return MatchType.Mismatch;
+			if (Expecting != ValueType.Identifier && argument is Functional && ((Functional)argument).Fixity != Fixity.Prefix) return MatchType.Mismatch;
 
 			//If the type is Uncertain or Identifier, the argument doesn't need to match it
-			if (Expecting == ValueType.Uncertain || argument.Type <= Expecting || (Expecting == ValueType.Identifier && argument.Var.Names.Count != 0))
+			if (Expecting == ValueType.Uncertain || argument.Type <= Expecting || (Expecting == ValueType.Identifier && argument.Var.LastName != ""))
 			{
 				if (ArgumentsLeft == 1) return MatchType.FullMatch;
 				else return MatchType.PartialMatch;
@@ -98,8 +98,8 @@ namespace Hype
 			var last = Function.Signature.InputSignature.Last();
 
 			//See notes in the CheckArgument function
-			if (last != ValueType.Identifier && argument.Type <= ValueType.Functional && (argument as Functional).Fixity != Fixity.Prefix) return MatchType.Mismatch;
-			if (last == ValueType.Uncertain || argument.Type <= last || (last == ValueType.Identifier && argument.Var.Names.Count != 0))
+			if (last != ValueType.Identifier && argument is Functional && (argument as Functional).Fixity != Fixity.Prefix) return MatchType.Mismatch;
+			if (last == ValueType.Uncertain || argument.Type <= last || (last == ValueType.Identifier && argument.Var.LastName != ""))
 			{
 				return MatchType.PartialMatch;
 			}

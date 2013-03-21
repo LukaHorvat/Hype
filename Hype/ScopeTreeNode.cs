@@ -65,13 +65,14 @@ namespace Hype
 				while (i < parts.Length)
 				{
 					r = scope.Lookup(parts[i]);
-					if (r == null && parts.Length >= i)
+					if (r == null && i < parts.Length - 1)
 					{
-						throw new ExpressionException("Tried to access a field of a null reference");
+						return null;
 					}
-					scope = r.RefValue.ScopeNode;
+					if (r != null) scope = r.RefValue.ScopeNode;
 					++i;
 				}
+				if (r != null) r.RefValue.Var.LastName = key;
 				return r;
 			}
 			else
@@ -92,6 +93,7 @@ namespace Hype
 		/// <returns></returns>
 		private Reference LookupThis(string key)
 		{
+			references[key].RefValue.Var.LastName = key;
 			return references[key];
 		}
 
@@ -112,11 +114,15 @@ namespace Hype
 				return;
 			}
 
-			if (val.Var.Names.Count == 0) val.Var.Names.Add(key);
+			if (val.Var.OriginalName == "") val.Var.OriginalName = key;
 
 			if (!contains) references[key] = new Reference(null);
 			var refer = references[key];
-			if (val is Function) refer.RefValue = new PartialApplication(val as Function) { Var = new Variable(key) };
+			if (refer.RefValue != null && refer.RefValue.Type <= ValueType.ProxyValue)
+			{
+				if (refer.RefValue.Type <= ValueType.ProxyWithSetter) (refer.RefValue as ProxyValue).Setter(val);
+			}
+			else if (val is Function) refer.RefValue = new PartialApplication(val as Function) { Var = new Variable(key) };
 			else refer.RefValue = val;
 		}
 

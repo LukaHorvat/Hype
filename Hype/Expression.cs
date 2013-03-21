@@ -12,11 +12,6 @@ namespace Hype
 		public List<ExpressionItem> Sequence;
 		public List<ExecutionNode> Nodes;
 
-		private List<List<LinkedListNode<Value>>> functionList;
-		private Stack<LinkedListNode<Value>> functionStack;
-		private LinkedList<Value> currentExecution;
-		private Queue<FunctionCallException> exceptions;
-
 		private int numFixities;
 
 		public Expression(Token bracketToken)
@@ -24,11 +19,6 @@ namespace Hype
 		{
 			Sequence = new List<ExpressionItem>();
 			numFixities = Enum.GetNames(typeof(Fixity)).Length;
-			functionList = new List<List<LinkedListNode<Value>>>(numFixities);
-			for (int i = 0; i < numFixities; ++i) functionList.Add(new List<LinkedListNode<Value>>());
-			functionStack = new Stack<LinkedListNode<Value>>();
-			currentExecution = new LinkedList<Value>();
-			exceptions = new Queue<FunctionCallException>();
 		}
 
 		public void ParseNodes()
@@ -84,7 +74,7 @@ namespace Hype
 			for (int i = 0; i < items.Count; ++i)
 			{
 				//Fixed references aren't meant to be modified.
-				if (node.Cache[i] is FixedReference) continue;
+				if (node.Cache[i] != null && node.Cache[i].Fixed) continue;
 
 				var tok = items[i].OriginalToken;
 				switch (tok.Type)
@@ -125,10 +115,10 @@ namespace Hype
 		{
 			Nodes.ForEach(
 				node =>
-					node.Cache = node.Cache.Select<Reference, Reference>(
+					node.Cache.ForEach(
 						r =>
-							r != null ? new FixedReference(r) : null
-						).ToList()
+						{ if (r != null) r.Fixed = true; }
+					)
 			);
 		}
 
@@ -145,27 +135,31 @@ namespace Hype
 					GenerateLookupCache(execNode, interpreter);
 				}
 
-				for (int i = 0; i < numFixities; ++i) functionList[i].Clear();
+				var functionList = new List<List<LinkedListNode<Value>>>(numFixities);
+				for (int i = 0; i < numFixities; ++i) functionList.Add(new List<LinkedListNode<Value>>());
 
-				functionStack.Clear();
-				currentExecution.Clear();
+				var functionStack = new Stack<LinkedListNode<Value>>();
+				var currentExecution = new LinkedList<Value>();
+				var exceptions = new Queue<FunctionCallException>();
 
 				Value val;
 				for (int i = 0; i < execNode.Cache.Count; ++i)
 				{
-					//If the last lookup didn't find the identifier, the cache will be null. If it's still null after another lookup,
-					//set the value to a blank identifier.
-					execNode.Cache[i] = execNode.Cache[i] ?? interpreter.CurrentScopeNode.Lookup(execNode.InnerExpression[i].OriginalToken.Content);
-					if (execNode.Cache[i] == null)
+					//If the original lookup (on block creation) didn't find the identifier, the cache will be null. If it's 
+					//still null after another lookup, set the value to a blank identifier.
+					var r = execNode.Cache[i] ?? interpreter.CurrentScopeNode.Lookup(execNode.InnerExpression[i].OriginalToken.Content);
+					if (r == null)
 					{
 						val = new BlankIdentifier(execNode.InnerExpression[i].OriginalToken.Content);
 					}
 					else
 					{
-						val = execNode.Cache[i].RefValue;
+						val = r.RefValue;
 					}
 					if (val != null)
 					{
+						if (val.Type <= ValueType.ReturnValue) return val;
+						if (val.Type <= ValueType.ProxyValue) val = (val as ProxyValue).Getter();
 						currentExecution.AddLast(val);
 						if (val.Type == ValueType.FunctionGroup)
 						{
@@ -174,13 +168,21 @@ namespace Hype
 						}
 					}
 				}
-				exceptions.Clear();
 
 				for (int j = functionList.Count - 1; j >= 0; --j) for (int k = functionList[j].Count - 1; k >= 0; --k) functionStack.Push(functionList[j][k]);
-				if (true) { }
+				
 				while (functionStack.Count > 0)
 				{
 					var funcNode = functionStack.Pop();
+
+					//In some cases, a function yet to be executed gets eaten by another function
+					//as an argument. In that case we just skip it
+					if (funcNode.List != currentExecution) continue;
+					
+					//In some cases, an object with the type Function might not be an actual function
+					//but a blank identifier or something else. We skip those cases
+					if (!(funcNode.Value is Functional)) continue;
+
 					if (!(funcNode.Value is ICurryable))
 					{
 						funcNode.Value = new PartialApplication(funcNode.Value as Function);
@@ -252,6 +254,7 @@ namespace Hype
 					}
 					var node = currentExecution.AddAfter(funcNode, res);
 					currentExecution.Remove(funcNode);
+					if (res.Type <= ValueType.ReturnValue) return res;
 					if (res != func && res.Type.IsSubtypeOf(ValueType.Functional) && currentExecution.Count > 1) functionStack.Push(node);
 				}
 

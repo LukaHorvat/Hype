@@ -117,14 +117,25 @@ namespace Hype.SL.Global
 			return new Boolean(a.Num != b.Num);
 		}
 
-		[FunctionAttributes(Hype.Fixity.Infix_15, "=")]
+		[FunctionAttributes(Hype.Fixity.Infix_15, "=", 0)]
+		public Void Assign(List targets, List values)
+		{
+			if (targets.InnerList.Count != values.InnerList.Count) throw new ExpressionException("Lists in multiple assignments need to be of same length");
+			for (int i = 0; i < targets.InnerList.Count; ++i)
+			{
+				Assign(new Identifier(targets.InnerList[i].Var.OriginalName), values.InnerList[i]);
+			}
+			return Void.Instance;
+		}
+
+		[FunctionAttributes(Hype.Fixity.Infix_15, "=", 1)]
 		public Value Assign(Identifier variable, Value obj)
 		{
 			var str = variable.Str;
 			if (str.IndexOf('.') != -1)
 			{
 				int lastIndex = str.LastIndexOf('.');
-				var r = Interpreter.CurrentScopeNode.Lookup(str.Substring(0, str.Length - lastIndex - 1));
+				var r = Interpreter.CurrentScopeNode.Lookup(str.Substring(0, lastIndex));
 				if (r == null) throw new ExpressionException("Tried to access a field of a null reference");
 				r.RefValue.ScopeNode.AddToScope(str.Substring(lastIndex + 1), obj);
 			}

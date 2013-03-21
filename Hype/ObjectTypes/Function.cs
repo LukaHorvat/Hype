@@ -108,7 +108,7 @@ namespace Hype
 
 		public ICurryable PrefixApplication
 		{
-			get { return new PartialApplication(new List<IInvokable>() { this }, Hype.Fixity.Prefix, Var.Names[0]); }
+			get { return new PartialApplication(new List<IInvokable>() { this }, Hype.Fixity.Prefix, Var.OriginalName); }
 		}
 	}
 }

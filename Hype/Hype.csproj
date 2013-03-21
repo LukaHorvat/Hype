@@ -54,6 +54,7 @@
     <Compile Include="ExecutionNode.cs" />
     <Compile Include="ExpressionCache.cs" />
     <Compile Include="LogEntry.cs" />
+    <Compile Include="ObjectTypes\ReturnValue.cs" />
     <Compile Include="ObjectTypes\UserType.cs" />
     <Compile Include="Reference.cs" />
     <Compile Include="ObjectTypes\CastFunction.cs" />

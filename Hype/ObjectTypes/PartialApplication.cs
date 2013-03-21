@@ -41,7 +41,7 @@ namespace Hype
 		private string funcName = "";
 
 		public PartialApplication(Function func)
-			: this(new List<IInvokable>() { func }, func.Fixity, func.Var.Names.Count > 0 ? func.Var.Names[0] : "") { }
+			: this(new List<IInvokable>() { func }, func.Fixity, func.Var.OriginalName) { }
 
 		public PartialApplication(List<IInvokable> matches, Fixity fixity, string name)
 			: this(matches.Select(m => new PartialCall(m)).ToList(), fixity, name) { }
@@ -95,7 +95,7 @@ namespace Hype
 			}
 			if (potentialMatches.Count == 0)
 			{
-				if (argument.Type <= ValueType.Functional && (argument as Functional).Fixity != Hype.Fixity.Prefix)
+				if (argument is Functional && (argument as Functional).Fixity != Hype.Fixity.Prefix)
 				{
 					//PartialCalls will just report a mismatch if they're passed an infix function and they're not looking
 					//for an Identifier. In case we do have an infix function an all the potential matches returned a mismatch

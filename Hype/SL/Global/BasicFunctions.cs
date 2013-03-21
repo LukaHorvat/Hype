@@ -70,7 +70,7 @@ namespace Hype.SL.Global
 			else
 			{
 				//If the previous condition was true, just consume the following CodeBlock
-				return (Functional)Interpreter.CurrentScopeNode.LookupNoRef("consume");
+				return (Functional)Interpreter.CurrentScopeNode.LookupNoRef("eat");
 			}
 		}
 
@@ -80,8 +80,8 @@ namespace Hype.SL.Global
 			return block.Execute(Interpreter);
 		}
 
-		[FunctionAttributes(Hype.Fixity.Prefix, "consume")]
-		public Void Consume(Value arg)
+		[FunctionAttributes(Hype.Fixity.Prefix, "eat")]
+		public Void Eat(Value arg)
 		{
 			return Void.Instance;
 		}
@@ -89,6 +89,10 @@ namespace Hype.SL.Global
 		[FunctionAttributes(Hype.Fixity.Prefix, "printLine")]
 		public Void PrintLine(Value arg)
 		{
+			if (arg is String && ((String)arg).Str == "break")
+			{
+
+			}
 			Console.WriteLine(arg.Show());
 			return Void.Instance;
 		}
@@ -106,15 +110,16 @@ namespace Hype.SL.Global
 			var functionsScope = new ScopeTreeNode(Permanency.NonPermanent, Interpreter.CurrentScopeNode);
 			Func<List<Value>, Value> code = delegate(List<Value> list)
 			{
-				Interpreter.EnterScope(functionsScope);
-				//block.Expression.GenerateLookupCache(Interpreter); //Bind the function's CodeBlock to the function's scope.
+				var tempScope = new ScopeTreeNode(Permanency.NonPermanent, functionsScope.Parent);
+				Interpreter.EnterScope(tempScope);
 				for (int i = 0; i < list.Count; ++i)
 				{
-					var name = args.InnerList[i].Var.Names[0];
+					var name = args.InnerList[i].Var.OriginalName;
 					Interpreter.CurrentScopeNode.AddToScope(name, list[i]);
 				}
 				var ret = block.Execute(Interpreter);
-				Interpreter.ExitScope(true);
+				if (ret.Type <= ValueType.ReturnValue) ret = (ret as ReturnValue).InnerValue;
+				Interpreter.ExitScope();
 
 				return ret;
 			};
@@ -134,11 +139,17 @@ namespace Hype.SL.Global
 		[FunctionAttributes(Hype.Fixity.Prefix, "new")]
 		public Value New(UserType type)
 		{
-			var obj = new TypedObject(type.Var.Names[0]);
+			var obj = new TypedObject(type.Var.OriginalName);
 			Interpreter.EnterScope(obj.ScopeNode);
 			type.PropertyBlock.Execute(Interpreter);
 			Interpreter.ExitScope();
 			return obj;
+		}
+
+		[FunctionAttributes(Hype.Fixity.Prefix, "return")]
+		public ReturnValue Return(Value val)
+		{
+			return new ReturnValue(val);
 		}
 	}
 }

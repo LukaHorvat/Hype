@@ -29,7 +29,9 @@ namespace Hype
 		public static ValueType IfFalse;
 		public static ValueType Uncertain;
 		public static ValueType ProxyValue;
+		public static ValueType ProxyWithSetter;
 		public static ValueType UserType;
+		public static ValueType ReturnValue;
 
 		protected ValueType(string name)
 		{
@@ -62,6 +64,7 @@ namespace Hype
 			new[] { "FunctionGroup", "Function" }.ToList().ForEach(s => func.AddSubtype(ValueType.GetType(s)));
 			String.AddSubtype(Identifier);
 			List.AddSubtype(Collection);
+			ProxyValue.AddSubtype(ProxyWithSetter);
 		}
 
 		public bool IsSubtypeOf(ValueType type)
