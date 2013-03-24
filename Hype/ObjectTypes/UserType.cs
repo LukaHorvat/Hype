@@ -5,14 +5,20 @@ using System.Text;
 
 namespace Hype
 {
-	class UserType : Value
+	class UserType : CastFunction
 	{
 		public CodeBlock PropertyBlock;
 
 		public UserType(CodeBlock propertyBlock)
-			: base(ValueType.UserType)
+			: base(ValueType.GetNewType())
 		{
 			PropertyBlock = propertyBlock;
+			Type = ValueType.UserType;
+		}
+
+		public override string ToString()
+		{
+			return "Type: " + Var.OriginalName;
 		}
 	}
 }

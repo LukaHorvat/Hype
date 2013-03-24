@@ -52,6 +52,13 @@ namespace Hype
 			}
 		}
 
+		private static int randomCouter = 0;
+		public static ValueType GetNewType()
+		{
+			randomCouter++;
+			return GetType("userType#" + randomCouter);
+		}
+
 		static ValueType()
 		{
 			var fields = typeof(ValueType).GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public).Where(f => f.FieldType == typeof(ValueType));

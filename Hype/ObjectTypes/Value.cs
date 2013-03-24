@@ -41,7 +41,7 @@ namespace Hype
 
 		public virtual string Show()
 		{
-			return "Var: " + Var.OriginalName + ", Type: " + Type;
+			return "[Var: " + Var.OriginalName + ", Type: " + Type + "]";
 		}
 	}
 }

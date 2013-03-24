@@ -87,20 +87,23 @@ namespace Hype
 						break;
 					case TokenType.Group:
 						var exp = items[i] as Expression;
-						exp.GenerateLookupCache(interpreter);
-						exp.FixAllReferences();
 						if (exp.OriginalToken.Content == "{")
 						{
 							var codeblock = new CodeBlock(exp);
 							node.Cache[i] = new Reference(codeblock);
 						}
-						else if (exp.OriginalToken.Content == "[")
-						{
-							node.Cache[i] = new ListCache(exp, interpreter);
-						}
 						else
 						{
-							node.Cache[i] = new ExpressionCache(exp, interpreter);
+							exp.GenerateLookupCache(interpreter);
+							exp.FixAllReferences();
+							if (exp.OriginalToken.Content == "[")
+							{
+								node.Cache[i] = new ListCache(exp, interpreter);
+							}
+							else
+							{
+								node.Cache[i] = new ExpressionCache(exp, interpreter);
+							}
 						}
 						break;
 				}
@@ -161,16 +164,20 @@ namespace Hype
 						if (val.Type <= ValueType.ReturnValue) return val;
 						if (val.Type <= ValueType.ProxyValue) val = (val as ProxyValue).Getter();
 						currentExecution.AddLast(val);
-						if (val.Type == ValueType.FunctionGroup)
+						if (val is Functional)
 						{
 							var fg = (IFunctionGroup)val;
 							functionList[(int)fg.Fixity].Add(currentExecution.Last);
+						}
+						if (val is CodeBlock)
+						{
+							(val as CodeBlock).Expression.GenerateLookupCache(interpreter);
 						}
 					}
 				}
 
 				for (int j = functionList.Count - 1; j >= 0; --j) for (int k = functionList[j].Count - 1; k >= 0; --k) functionStack.Push(functionList[j][k]);
-				
+
 				while (functionStack.Count > 0)
 				{
 					var funcNode = functionStack.Pop();
@@ -178,7 +185,7 @@ namespace Hype
 					//In some cases, a function yet to be executed gets eaten by another function
 					//as an argument. In that case we just skip it
 					if (funcNode.List != currentExecution) continue;
-					
+
 					//In some cases, an object with the type Function might not be an actual function
 					//but a blank identifier or something else. We skip those cases
 					if (!(funcNode.Value is Functional)) continue;

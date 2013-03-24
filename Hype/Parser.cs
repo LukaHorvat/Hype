@@ -112,7 +112,8 @@ namespace Hype
 				if (IsOpenBracket(tokens[currentIndex]))
 				{
 					var subExpression = BuildExpressionTree(tokens, currentIndex);
-					if (subExpression.Sequence.Count != 0) res.Sequence.Add(subExpression);
+					//if (subExpression.Sequence.Count != 0) 
+					res.Sequence.Add(subExpression);
 					currentIndex += subExpression.GetNumTokens() - 1;
 				}
 				else res.Sequence.Add(new ExpressionItem(tokens[currentIndex]));
